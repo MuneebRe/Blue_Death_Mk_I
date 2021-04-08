@@ -1,0 +1,11 @@
+
+-> half track = 199.24 x 120.34 m (4214 x 2545 pixels)
+
+-> full track = 359.1 x 120.34 m (7595 x 2545 pixels)
+
+both cases have a scale of 21.15 pixels / m
+
+half track x-offset = 4214/2 - 7595/2 = -1690.5
+
+pixels_per_m = 21.15;
+x_offset = -1690.5;

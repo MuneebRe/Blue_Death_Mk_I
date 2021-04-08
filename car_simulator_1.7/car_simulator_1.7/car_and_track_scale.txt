@@ -1,0 +1,22 @@
+
+Porche 911 specs (1994)
+https://www.edmunds.com/porsche/911/1994/st-1299/features-specs/
+
+wheel base: 89.4 in (2.27 m)
+length: 168.3 in (4.275 m)
+width: 65.0 in (1.651 m)
+
+car x-file
+length: 2.781 m
+width: 1.16 m
+
+* need to scale the car x-file by:
+scale = 4.275 / 2.781 = 1.537
+
+-> I needed to scale the track by 200 % for a reasonable lane width (12.5 m)
+
+-> half track = 199.24 x 120.34 m (4214 x 2545 pixels)
+
+-> full track = 359.1 x 120.34 m (7595 x 2545 pixels)
+
+both cases have a scale of 21.15 pixels / m

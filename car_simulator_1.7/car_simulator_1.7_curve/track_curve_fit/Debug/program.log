@@ -1,0 +1,8 @@
+﻿cl : command line warning D9035: option 'Gm' has been deprecated and will be removed in a future release
+  recipes.cpp
+  program.cpp
+  nrutil.cpp
+  curve.cpp
+  cubic_spline.cpp
+  Generating Code...
+  program.vcxproj -> C:\Users\Muneeb\Downloads\car_simulator_1.7\car_simulator_1.7_curve\track_curve_fit\.\Debug\program.exe
