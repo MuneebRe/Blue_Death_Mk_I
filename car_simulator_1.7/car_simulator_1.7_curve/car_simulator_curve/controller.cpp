@@ -101,28 +101,7 @@ void calculate_control_inputs()
 		
 	// initialization section -- gets exectuted once at the beginning
 	if( !init ) {
-		s = 500; // increase to start along the track curve a distance of s
-
-	// calculate the x, y position (pixels) and derivatives 
-	// of the center of the full car track
-	// as a function of s the distance along the curve
-	// from the beginning.
-	// note that s is valid from s_begin to s_end
-	// (plus a little bit before and after that if needed)
-		curve(s, x, y, xd, yd, xdd, ydd);
-
-		// adjust x offset between full and half track
-		x = x + x_offset;
-
-		// convert x and y to m
-		x = x / pixels_per_m;
-		y = y / pixels_per_m;
-		theta = atan2(yd, xd);
-
-		// start track on the curve
-		robot1.x[7] = x;
-		robot1.x[8] = y;
-		robot1.x[6] = theta;
+		
 		fout << scientific;
 		
 		init = 1;
@@ -151,7 +130,28 @@ void calculate_control_inputs()
 	
 	// set car position and angle around the track
 	// -- note this isn't a valid contro scheme
-	
+	s = t * 500; // increase to start along the track curve a distance of s
+
+	// calculate the x, y position (pixels) and derivatives 
+	// of the center of the full car track
+	// as a function of s the distance along the curve
+	// from the beginning.
+	// note that s is valid from s_begin to s_end
+	// (plus a little bit before and after that if needed)
+	curve(s, x, y, xd, yd, xdd, ydd);
+
+	// adjust x offset between full and half track
+	x = x + x_offset;
+
+	// convert x and y to m
+	x = x / pixels_per_m;
+	y = y / pixels_per_m;
+	theta = atan2(yd, xd);
+
+	// start track on the curve
+	robot1.x[7] = x;
+	robot1.x[8] = y;
+	robot1.x[6] = theta;
 
 	//////////////////
 
