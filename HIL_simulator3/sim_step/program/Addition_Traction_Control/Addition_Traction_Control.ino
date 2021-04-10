@@ -1,10 +1,4 @@
 
-// version 1.1 -- replace calculate_mu with calculate_mu_bw
-// -> reduces sim_step time from 1000 us to 835 us
-
-// version 1.2 -- change / to * for constants
-// -> reduces sim_step time from 835 us to 700 us
-
 // sign macro function
 #define SIGN(a) ( (a) >= 0.0 ? 1.0 : -1.0 )
 
@@ -13,8 +7,14 @@ void sim_step(float &t, float x[], float u[], float dt, float y[]);
 const int NS = 5; // number of state variables (order)
 const int MS = 2; // number of inputs
 const int PS = 4; // number of outputs (NOTE: dropped S and mu here -- note needed)
-
+const float kp = 1;
+const float ki = 1;
+const float kd = 1;
+float breakval, error, old_error, error_dot, int_error;
 float calculate_mu_bw(float r);
+float delay_flag, delay_value;
+
+void traction_control(float r,float u[],float dt,bool traction_state, float delay_value);
 
 void setup() { // note: setup is analogous to main not loop
 
@@ -99,7 +99,8 @@ void setup() { // note: setup is analogous to main not loop
       Serial.print(",");
       Serial.print(y[i],5);       
     } 
-  
+      Serial.print(",");
+      Serial.print(delay_flag);
     // each row represents a given time
     if( t < tf ) Serial.print("\n"); // move on to next row
     
@@ -125,7 +126,7 @@ void sim_step(float &t, float x[], float u[], float dt, float y[])
 {
   int i;
   static float xd[NS+1]; // derivative vector at time t 
-  static float breakval;
+  
   // note static variables are used to store variables 
   // that need to be remembered between function calls.
   
@@ -174,6 +175,12 @@ void sim_step(float &t, float x[], float u[], float dt, float y[])
     ////////////////////////////////////
 
     breakval = 0;
+    delay_flag = 0;
+    delay_value = 0;
+    error = 0;
+    old_error= 0;
+    error_dot = 0;
+    int_error = 0;
     
     // 2. set initial conditions (IC)
     t = 0.0; // initial time  
@@ -225,26 +232,25 @@ void sim_step(float &t, float x[], float u[], float dt, float y[])
   y[4] = mu; 
 
 
-if( wb > wf){
-
-    u[1] = u[1]-(u[1]*breakval); // motor voltage V(t) ***************************************************
-    if(u[1] <= 0) u[1] = 0;
-    u[2] = 0.0; // disturbance torque Td(t)
-    breakval = breakval+0.5;
-    if(breakval >= 1)breakval = 1;
-  }
-
-  if(r <= 0){
-
-    u[1] = u[1]+(12*breakval); ; // motor voltage V(t) ***************************************************
-    if(u[1] >= 12) u[1] = 12;
-    u[2] = 0.0; // disturbance torque Td(t)
-    breakval = breakval-0.1;
-    if(breakval <= 0)breakval = 0;
-    }
-
-//Detect slip
-//Cut off power to the wheels because there's no breaking on the car
+//if( wb >= v){
+//
+//    u[1] = u[1]-(u[1]*breakval); // motor voltage V(t) ***************************************************
+//    if(u[1] <= 0) u[1] = 0;
+//    u[2] = 0.0; // disturbance torque Td(t)
+//    breakval = breakval+0.01;
+//    if(breakval >= 1)breakval = 1;
+//  }
+//
+//  if(wb <= wf){
+//
+//    u[1] = u[1]+(12*breakval); ; // motor voltage V(t) ***************************************************
+//    if(u[1] >= 12) u[1] = 12;
+//    u[2] = 0.0; // disturbance torque Td(t)
+//    breakval = breakval-0.1;
+//    if(breakval <= 0)breakval = 0;
+//    }
+  
+    traction_control(r,u,dt,v,wb,Rw,true, 0);
 
 
       for(i=1;i<=MS;i++) {
@@ -275,7 +281,7 @@ if( wb > wf){
   xd[4] = Ft * m_inv; // dv/dt
   xd[5] = x[4]; // dx/dt = v
 
-  // 5. apply Euler's equation, x = x + dx, note x is a vector
+  // 5. apply Euler's equation, x = x + dx, note x is a vectorpid controller
   // this part is always the same
   // but calculating xd will normally be different
   for(i=1;i<=NS;i++) x[i] = x[i] + xd[i]*dt; 
@@ -284,6 +290,41 @@ if( wb > wf){
   
 }
 
+void traction_control(float r,float u[],float dt,float v,float wb,float Rw,bool traction_state, float delay_value)
+  {
+    if(traction_state == true)
+    {
+      if(delay_flag >= delay_value)
+      {
+        
+        if( r > 0)
+        {
+        
+        error = v - (wb* Rw);
+        error_dot = (error - old_error)/dt;
+        int_error = int_error + error*dt;
+        u[1] = kp*error + ki * int_error + kd * error_dot;
+        old_error = error;
+        if (u[1]>= 12.0)u[1] = 12.0;
+        if (u[1] <= 0 ) u[1] = 0;
+        
+          }
+        if( r <= 0)
+        {
+          u[1] = 12.0;
+          }
+        }
+        else
+        {
+          delay_flag = delay_flag + dt;
+          //break;
+          }
+      }
+    if(traction_state == false)
+    {
+      u[1] = 12.0;
+    }
+  }
 
 float calculate_mu_bw(float r)
 // BW model
