@@ -1,0 +1,4 @@
+E:\Concordia University\Courses\11. Winter 2021\MECH471 & MECH472\Serial Communication\serial_communication1_b\serial_communication1_REV_C\serial_example2_save_serial\windows_program\Debug\program.exe
+E:\Concordia University\Courses\11. Winter 2021\MECH471 & MECH472\Serial Communication\serial_communication1_b\serial_communication1_REV_C\serial_example2_save_serial\windows_program\Debug\program.pdb
+C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\Serial\Debug\program.exe
+C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\Serial\Debug\program.pdb
