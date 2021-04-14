@@ -7,9 +7,9 @@ void sim_step(float &t, float x[], float u[], float dt, float y[]);
 const int NS = 5; // number of state variables (order)
 const int MS = 2; // number of inputs
 const int PS = 4; // number of outputs (NOTE: dropped S and mu here -- note needed)
-const float kp = 1;
-const float ki = 1;
-const float kd = 1;
+const float kp = 10;
+const float ki = 10;
+const float kd = 10;
 float breakval, error, old_error, error_dot, int_error;
 float calculate_mu_bw(float r);
 float delay_flag, delay_value;
@@ -232,26 +232,7 @@ void sim_step(float &t, float x[], float u[], float dt, float y[])
   y[4] = mu; 
 
 
-//if( wb >= v){
-//
-//    u[1] = u[1]-(u[1]*breakval); // motor voltage V(t) ***************************************************
-//    if(u[1] <= 0) u[1] = 0;
-//    u[2] = 0.0; // disturbance torque Td(t)
-//    breakval = breakval+0.01;
-//    if(breakval >= 1)breakval = 1;
-//  }
-//
-//  if(wb <= wf){
-//
-//    u[1] = u[1]+(12*breakval); ; // motor voltage V(t) ***************************************************
-//    if(u[1] >= 12) u[1] = 12;
-//    u[2] = 0.0; // disturbance torque Td(t)
-//    breakval = breakval-0.1;
-//    if(breakval <= 0)breakval = 0;
-//    }
-  
-    traction_control(r,u,dt,v,wb,Rw,true, 0);
-
+    traction_control(r,u,dt,v,wb,Rw,true, 2);
 
       for(i=1;i<=MS;i++) {
         Serial.print(",");
