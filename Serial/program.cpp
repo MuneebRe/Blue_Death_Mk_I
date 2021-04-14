@@ -20,7 +20,7 @@ using namespace std;
 // note that multiple keys can be pressed at once
 #define KEY(c) ( GetAsyncKeyState((int)(c)) & (SHORT)0x8000 )
 
-void function();
+void Serial_to_Sim();
 
 
 HANDLE h1;
@@ -64,6 +64,7 @@ int main()
 	cout << "\nand don't run the Arduino Serial Monitor when using this program\n"; 
 
 	// open output file
+	//if (fout.is_open()) return;
 	fout.open("output.txt");
 	
 	if(!fout) {
@@ -115,7 +116,7 @@ int main()
 		fout << buffer_in[0];
 		*/
 
-		function();
+		Serial_to_Sim();
 
 		
 	}
@@ -140,7 +141,7 @@ int main()
 
 
 
-void function()
+void Serial_to_Sim()
 {
 	const int nb_inputs = 6;
 	const int str_limit = 15;
@@ -236,7 +237,7 @@ void function()
 
 	fout.close();
 
-
+	
 	ifstream fin;
 	fin.open("binary.bin", ios::binary);
 
@@ -261,7 +262,8 @@ void function()
 
 	for (int i = 0; i < nb_inputs; i++)
 	{
-		cout << output[i] << "\t\t";
-		if (i == nb_inputs - 1) cout << endl;
+		//cout << output[i] << "\t\t";
+		//if (i == nb_inputs - 1) cout << endl;
 	}
+	
 }

@@ -58,8 +58,16 @@ void reset_ICs();
 
 void calculate_control_inputs()
 {	
+
+	//get_from_Serial(output);
+
+	for (int i = 1; i < 6; i++)
+	{
+		//robot1.x[i] = output[i];
+	}
+
 	// set state variables and outputs each time in the control loop
-	
+
 	double im = robot1.x[1]; // motor current im (A)
 	double wm = robot1.x[2]; // motor speed wm (rad/s)
 	double theta = robot1.x[3]; // motor angle, theta (rad)	
@@ -91,7 +99,7 @@ void calculate_control_inputs()
 	// initialization section -- gets exectuted once at the beginning
 	if( !init ) {
 		
-		fout << scientific;
+		//fout << scientific;
 		
 		init = 1;
 	}
@@ -166,3 +174,4 @@ void reset_ICs()
 	robot1.y[4] = 0.0; // coefficient of tire friction mu
 	
 }
+

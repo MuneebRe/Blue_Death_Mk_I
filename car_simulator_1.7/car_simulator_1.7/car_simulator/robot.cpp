@@ -9,6 +9,8 @@
 
 #include "robot.h"
 
+#include "Serial.h"
+
 using namespace std;
 
 // sign macro function
@@ -126,9 +128,23 @@ void robot::sim_step(double dt)
 	/// tau_b = GR * tau_m -> tau_m = tau_b / GR
 	
 	// DC motor equations (modified for tire torque Rw*Ft)
+
+	/* Me trying to modify something here
 	xd[1] = (-x[1]*R - kb*x[2] + u[1])/L; // di/dt
 	xd[2] = (km*x[1] - b*x[2] - fc*SIGN(x[2]) - (Rw*Ft)/GR - u[2])/J; /// dw/dt
 	xd[3] = x[2]; // dth/dt = w
+	*/
+	double output[6];
+
+	get_from_Serial(output);
+
+	xd[1] = output[1];
+	xd[2] = output[2];
+	xd[3] = output[3];
+	//xd[1] = 1.4279;
+	//xd[2] = 2055;
+	//xd[3] = 37651;
+
 
 	// note that combining state variable equation models
 	// normally requires exchange / sharing of coupling 
@@ -140,8 +156,10 @@ void robot::sim_step(double dt)
 	// -- requires differential algebraic equation (DAE) solvers 
 
 	// new state-variable equations for the traction model
-	xd[4] = Ft / m; // dv/dt
-	xd[5] = x[4]; // dx/dt = v
+	//xd[4] = Ft / m; // dv/dt
+	//xd[5] = x[4]; // dx/dt = v
+	xd[4] = output[4];
+	xd[5] = output[5];
 
 	// new state-variable equations for simple car model
 

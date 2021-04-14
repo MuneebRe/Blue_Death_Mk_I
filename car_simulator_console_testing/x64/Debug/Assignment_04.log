@@ -1,3 +1,4 @@
 ﻿  Sim_Console.cpp
-C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\car_simulator_console_testing\Sim_Console.cpp(124,16): warning C4101: 'pc': unreferenced local variable
+C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\car_simulator_console_testing\Sim_Console.cpp(39,11): warning C4101: 'p_buffer_out': unreferenced local variable
+C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\car_simulator_console_testing\Sim_Console.cpp(37,16): warning C4101: 'pc': unreferenced local variable
   Assignment_04.vcxproj -> C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\car_simulator_console_testing\x64\Debug\Sim_Console.exe
