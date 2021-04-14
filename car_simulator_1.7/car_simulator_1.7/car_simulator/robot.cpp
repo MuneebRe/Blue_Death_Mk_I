@@ -83,6 +83,12 @@ void robot::sim_step(double dt)
 	double mu, Ft, Fn, wm, v, r, wb, wf;
 	// tolerance for slip ratio calculation
 	double tol = 1.0e-10;
+	
+	//MR - Update state variable from Serial comm.
+	//Don't forget to change array size if more stuff added, does not like global constant.
+	//double output[8];
+	//reset_bin();
+	//get_from_Serial(output);
 
 	// parameters for simple car model
 	double u_s, u_phi;	
@@ -110,14 +116,16 @@ void robot::sim_step(double dt)
 	
 	// outputs of interest for plotting
 	
-	y[1] = wb; // back wheel velocity (rad/s)
+	//y[1] = wb; // back wheel velocity (rad/s)
+	//y[1] = output[6];
 	
 	// calculate front wheel angular velocity wf
 	// v = wf * Rw -> wf = v / Rw
 	wf = v / Rw;
 	
-	y[2] = wf; // front wheel velocity (rad/s) 	
-	
+	//y[2] = wf; // front wheel velocity (rad/s) 	
+	//y[2] = output[7];
+
 	y[3] = r;
 	
 	y[4] = mu;
@@ -128,23 +136,9 @@ void robot::sim_step(double dt)
 	/// tau_b = GR * tau_m -> tau_m = tau_b / GR
 	
 	// DC motor equations (modified for tire torque Rw*Ft)
-
-	/* Me trying to modify something here
 	xd[1] = (-x[1]*R - kb*x[2] + u[1])/L; // di/dt
 	xd[2] = (km*x[1] - b*x[2] - fc*SIGN(x[2]) - (Rw*Ft)/GR - u[2])/J; /// dw/dt
 	xd[3] = x[2]; // dth/dt = w
-	*/
-	double output[6];
-
-	get_from_Serial(output);
-
-	xd[1] = output[1];
-	xd[2] = output[2];
-	xd[3] = output[3];
-	//xd[1] = 1.4279;
-	//xd[2] = 2055;
-	//xd[3] = 37651;
-
 
 	// note that combining state variable equation models
 	// normally requires exchange / sharing of coupling 
@@ -156,11 +150,21 @@ void robot::sim_step(double dt)
 	// -- requires differential algebraic equation (DAE) solvers 
 
 	// new state-variable equations for the traction model
-	//xd[4] = Ft / m; // dv/dt
-	//xd[5] = x[4]; // dx/dt = v
-	xd[4] = output[4];
-	xd[5] = output[5];
+	xd[4] = Ft / m; // dv/dt
+	xd[5] = x[4]; // dx/dt = v
+	//xd[4] = output[4];
+	//xd[5] = output[5];
 
+	/*
+	double output[nb_inputs];
+	reset_bin();
+	get_from_Serial(output);
+
+	for (int i = 1; i<6;i++)
+	{
+		x[i] = output[i];
+	}
+	*/
 	// new state-variable equations for simple car model
 
 	u_s = v; // forward speed input (m/s)

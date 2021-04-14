@@ -1,3 +1,4 @@
-﻿  program.cpp
-C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\Serial\program.cpp(216,13): warning C4101: 'pc': unreferenced local variable
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(491,5): warning MSB8028: The intermediate directory (.\Debug\) contains files shared from another project (Serial.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  program.cpp
+C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\Serial\program.cpp(222,13): warning C4101: 'pc': unreferenced local variable
   program.vcxproj -> C:\Users\Muneeb\Documents\GitHub\Blue_Death_Mk_I\Serial\.\Debug\program.exe

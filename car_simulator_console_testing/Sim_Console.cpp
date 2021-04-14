@@ -11,7 +11,7 @@ using namespace std;
 
 
 void get_from_Serial(double output[]);
-const int nb_inputs = 6;
+const int nb_inputs = 10;
 
 int main()
 {
@@ -19,7 +19,7 @@ int main()
     while (1)
     {
         
-        double output[6];
+        double output[nb_inputs];
         get_from_Serial(output);
 
         for (int i = 0; i < nb_inputs; i++)

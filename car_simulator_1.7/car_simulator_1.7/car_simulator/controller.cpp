@@ -14,6 +14,7 @@
 #include "timer.h" // for measuring time
 #include "rotation.h" // for computing rotation functions
 #include "3D_graphics.h" // user functions for DirectX 3D graphics
+#include "Serial.h"
 
 #include "graphics.h"
 
@@ -56,15 +57,32 @@ void reset_ICs();
 // in an Arduino program -- it get's exectuted as fast as possible.
 // -- ie this isn't like a main
 
+void HIL_Data()
+{
+	double output[nb_inputs];
+	reset_bin();
+	get_from_Serial(output);
+
+
+	robot1.y[1] = output[6];
+	robot1.y[2] = output[7];
+	robot1.u[1] = output[4];
+}
+
+void Sim_Step_Data()
+{
+	double output[nb_inputs];
+	reset_bin();
+	get_from_Serial(output);
+
+
+	robot1.y[1] = output[8];
+	robot1.y[2] = output[9];
+	robot1.u[1] = output[6];
+}
+
 void calculate_control_inputs()
 {	
-
-	//get_from_Serial(output);
-
-	for (int i = 1; i < 6; i++)
-	{
-		//robot1.x[i] = output[i];
-	}
 
 	// set state variables and outputs each time in the control loop
 
@@ -92,7 +110,7 @@ void calculate_control_inputs()
 	
 	double ds, dphi;
 
-	static double t_reset = 30;
+	static double t_reset = 300;
 
 	static int init = 0;
 	
@@ -129,16 +147,24 @@ void calculate_control_inputs()
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
 	robot1.u[3] = u_phi; // steering angle phi (rad)
+
+
+	//HIL_Data();
+	
+	Sim_Step_Data();
 	
 	// file output
 	// note: too much output might slow down the controller and simulation
 	fout << t << "," << xc << "," << yc << "," << u_s << "," << u_phi << "\n";
+	//fout << t << "," << robot1.u[1] << endl;
 
 	// how to periodically reset the ICs
 	// -- in case you want to perform some repeated tests, etc.
 	if( t > t_reset ) {
 		reset_ICs();
-		t_reset += 30; // reset 30 seconds later
+		//t_reset += 30; // reset 30 seconds later
+		t_reset += 300; // reset 30 seconds later
+
 	}
 
 }
@@ -174,4 +200,3 @@ void reset_ICs()
 	robot1.y[4] = 0.0; // coefficient of tire friction mu
 	
 }
-

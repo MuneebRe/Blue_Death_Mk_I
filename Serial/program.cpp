@@ -118,6 +118,11 @@ int main()
 
 		Serial_to_Sim();
 
+		// check for termination character from Arduino
+		if (buffer_in[0] == '#') break;
+
+		// check for termination character from keyboard
+		if (KEY('X')) break;
 		
 	}
 
@@ -143,12 +148,13 @@ int main()
 
 void Serial_to_Sim()
 {
-	const int nb_inputs = 6;
+	const int nb_inputs = 10;
 	const int str_limit = 15;
+	const int str_MAX = 120;
 
 	char mem[nb_inputs][str_limit];
 	double mem_d[nb_inputs];
-	char buffer_serial[64];
+	char buffer_serial[str_MAX];
 
 	int p_index = 0;
 	bool flag1 = 0;
@@ -157,8 +163,8 @@ void Serial_to_Sim()
 	//char string_read[100]{ "12.345,67.8910,11.1111,22.2222,33.3333, 44.4444\n" };
 	
 	
-	char string_read[100];
-	for (int i = 0; i < 100; i++)
+	char string_read[str_MAX];
+	for (int i = 0; i < str_MAX; i++)
 	{
 		serial_recv(buffer_serial, 1, h1);
 		string_read[i] = buffer_serial[0];
@@ -260,10 +266,13 @@ void Serial_to_Sim()
 		p += sizeof(double);
 	}
 
+	/*
+	cout << endl;
 	for (int i = 0; i < nb_inputs; i++)
 	{
-		//cout << output[i] << "\t\t";
-		//if (i == nb_inputs - 1) cout << endl;
+		cout << output[i] << "  |  ";
+		if (i == nb_inputs - 1) cout << endl;
 	}
-	
+	cout << endl;
+	*/
 }

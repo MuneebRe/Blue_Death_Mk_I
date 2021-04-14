@@ -10,11 +10,9 @@
 
 using namespace std;
 
-const int nb_inputs = 6;
-
 void get_from_Serial(double output[])
 {
-    char A[1000];
+    char A[150];
     char* p, * pc;
     double* pd;
     char* p_buffer_out;
@@ -47,4 +45,37 @@ void get_from_Serial(double output[])
     }
 
 
+}
+
+void reset_bin()
+{
+    static bool init = 0;
+    int n = 0;
+
+    if (!init)
+    {
+        init = 1;
+        char A[100];
+        char* p;
+        char* p_buffer_out;
+        double* pd;
+
+        p_buffer_out = A;
+        p = p_buffer_out;
+
+        for (int i = 0; i < nb_inputs; i++)
+        {
+            n += sizeof(double);
+            pd = (double*)p;
+            *pd = 0.00;
+            if (i == nb_inputs) break;
+            p += sizeof(double);
+        }
+
+        ofstream fout;
+
+        fout.open("../../../Serial/binary.bin", ios::binary);
+        fout.write(p_buffer_out, n);
+        fout.close();
+    }
 }
