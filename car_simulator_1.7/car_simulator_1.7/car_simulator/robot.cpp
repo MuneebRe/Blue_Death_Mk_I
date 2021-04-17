@@ -16,6 +16,8 @@ using namespace std;
 // sign macro function
 #define SIGN(a) ( (a) >= 0.0 ? 1.0 : -1.0 )
 
+ofstream fout("output.txt");
+
 robot::robot(double x0, double y0, double theta0)
 {
 	// model parameters //////////////////
@@ -71,14 +73,23 @@ robot::robot(double x0, double y0, double theta0)
 	y[2] = 0.0;
 	y[3] = 0.0;
 	y[4] = 0.0;
+
+	// PID Controller Initialization
+	error = 0;
+	old_error = 0;
+	error_dot = 0;
+	int_error = 0;
+	kp_PID = 10;
+	kd_PID = 10;
+	ki_PID = 10;
 	
 }
 
 
-void robot::sim_step(double dt)
+void robot::sim_step(double dt, robot robot1)
 {
 	int i;
-	
+
 	// parameters for traction model
 	double mu, Ft, Fn, wm, v, r, wb, wf;
 	// tolerance for slip ratio calculation
@@ -135,6 +146,27 @@ void robot::sim_step(double dt)
 	
 	/// tau_b = GR * tau_m -> tau_m = tau_b / GR
 	
+
+	/// Traction controller
+	
+	if (r > 0.01)
+	{
+
+		error = v - (wb * Rw); //Find error between the forward velocity and rear wheel velocity
+		error_dot = (error - old_error) / dt; //Find the derivative error
+		int_error = int_error + error * dt; // Find the integral  error
+		u[1] = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
+		old_error = error;
+		if (u[1] >= robot1.u[1])u[1] = robot1.u[1]; // Max voltage will be equal to the max determined by the user
+		if (u[1] <= 0) u[1] = 0; //Lower limit
+
+	}
+	if (r <= 0)
+	{
+		u[1] = robot1.u[1];
+	}
+
+
 	// DC motor equations (modified for tire torque Rw*Ft)
 	xd[1] = (-x[1]*R - kb*x[2] + u[1])/L; // di/dt
 	xd[2] = (km*x[1] - b*x[2] - fc*SIGN(x[2]) - (Rw*Ft)/GR - u[2])/J; /// dw/dt
@@ -183,6 +215,8 @@ void robot::sim_step(double dt)
 	// this part is always the same
 	// but calculating xd will normally be different
 	for(i=1;i<=NS;i++) x[i] = x[i] + xd[i]*dt; 
+
+	fout << robot1.t << "," << robot1.u[1] << ","<< robot1.x[7] << "," << robot1.x[8] << "," << wb << "," << wf << "," << r << "," << x[4] << "\n"; // Print the y[1] and y[2] (wb and wf)
 		
 	t = t + dt; // increment time		
 }

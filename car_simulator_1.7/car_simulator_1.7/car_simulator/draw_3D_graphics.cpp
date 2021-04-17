@@ -140,7 +140,7 @@ void draw_3D_graphics()
 
 	// real-time simulation of robot
 	while( t_sim < tc ) {
-		robot1.sim_step(dt_sim);
+		robot1.sim_step(dt_sim,robot1);
 		
 		t_sim += dt_sim;
 	}

@@ -28,7 +28,7 @@ const double PI = 4*atan(1.0);
 
 // output file for testing / debugging purposes since 
 // console output is not easy in a graphics program
-ofstream fout("output.txt");
+//ofstream fout("output.txt");
 
 // initial location of car
 // -> you can start the car on any spot of the track
@@ -142,6 +142,9 @@ void calculate_control_inputs()
 	if( KEY(VK_RIGHT) )	{
 		if( u_phi > -phi_max ) u_phi -= dphi;	
 	}
+	if (KEY('B')) {
+		 u_s = 0;
+	}
 	
 	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
@@ -151,13 +154,13 @@ void calculate_control_inputs()
 
 	//HIL_Data();
 	
-	Sim_Step_Data();
+	//Sim_Step_Data();
 	
 	// file output
 	// note: too much output might slow down the controller and simulation
-	fout << t << "," << xc << "," << yc << "," << u_s << "," << u_phi << "\n";
+	//fout << t << "," << xc << "," << yc << "," << robot1.u[1] << "," << u_phi << "\n";
 	//fout << t << "," << robot1.u[1] << endl;
-
+	
 	// how to periodically reset the ICs
 	// -- in case you want to perform some repeated tests, etc.
 	if( t > t_reset ) {
