@@ -75,13 +75,18 @@ robot::robot(double x0, double y0, double theta0)
 	y[4] = 0.0;
 
 	// PID Controller Initialization
+	
 	error = 0;
 	old_error = 0;
 	error_dot = 0;
 	int_error = 0;
+	
 	kp_PID = 10;
-	kd_PID = 10;
-	ki_PID = 10;
+	kd_PID = 100;
+	ki_PID = 0.5;
+	
+	brake_active = true;
+	start_acc = true;
 	
 }
 
@@ -121,7 +126,9 @@ void robot::sim_step(double dt, robot robot1)
 
 	// checking for / 0 is not needed because of tol
 	r = ( wb * Rw - v ) / ( fabs(v) + tol ); ///
-	
+	if (r > 10) r = 10;
+
+
 	// calculate friction coefficient
 	mu = calculate_mu(r); ///
 	
@@ -146,27 +153,59 @@ void robot::sim_step(double dt, robot robot1)
 	
 	/// tau_b = GR * tau_m -> tau_m = tau_b / GR
 	
-
-	/// Traction controller
+	// Acceleration From Stand Still
 	
-	if (r > 0.01)
+	if (start_acc == true && r > 0.1 && brake_active == false)
 	{
-
+		
 		error = v - (wb * Rw); //Find error between the forward velocity and rear wheel velocity
 		error_dot = (error - old_error) / dt; //Find the derivative error
 		int_error = int_error + error * dt; // Find the integral  error
 		u[1] = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
 		old_error = error;
-		if (u[1] >= robot1.u[1])u[1] = robot1.u[1]; // Max voltage will be equal to the max determined by the user
+		if (u[1] >= robot1.u[1])u[1] = robot1.u[1]; // Max voltage will be equal to the max value determined by the user
+		if (u[1] <= 0) u[1] = 0; //Lower limit
+		if (v > 20) start_acc = false;
+		
+	}
+	
+	// Traction Controller
+	
+	if ( r > 0 && brake_active == false && start_acc == false)
+	{
+
+		error = v- (wb * Rw); //Find error between the forward velocity and rear wheel velocity
+		error_dot = (error - old_error) / dt; //Find the derivative error
+		int_error = int_error + error * dt; // Find the integral  error
+		u[1] = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors with weightings
+		old_error = error;
+		if (u[1] >= robot1.u[1])u[1] = robot1.u[1]; // Max voltage will be equal to the max value determined by the user
 		if (u[1] <= 0) u[1] = 0; //Lower limit
 
 	}
-	if (r <= 0)
+
+	if (r == 0 && brake_active == false && start_acc == false)
 	{
-		u[1] = robot1.u[1];
+		u[1] = robot1.u[1] + 1;
+		if (u[1] >= 12)u[1] = 12;
 	}
 
+	// Breaking Control
 
+	if ( brake_active == true ) {
+		/*
+		error = 0 - v; //Find error between the forward velocity and rear wheel velocity
+		error_dot = (error - old_error) / dt; //Find the derivative error
+		int_error = int_error + error * dt; // Find the integral  error
+		u[1] = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
+		old_error = error;
+		if (u[1] >= robot1.u[1]) u[1] = robot1.u[1];
+		if (u[1] <= 0) u[1] = 0;
+		if (v > 5) u[1] = 0;
+		*/
+		u[1] = 0;
+	}
+	
 	// DC motor equations (modified for tire torque Rw*Ft)
 	xd[1] = (-x[1]*R - kb*x[2] + u[1])/L; // di/dt
 	xd[2] = (km*x[1] - b*x[2] - fc*SIGN(x[2]) - (Rw*Ft)/GR - u[2])/J; /// dw/dt
@@ -216,7 +255,7 @@ void robot::sim_step(double dt, robot robot1)
 	// but calculating xd will normally be different
 	for(i=1;i<=NS;i++) x[i] = x[i] + xd[i]*dt; 
 
-	fout << robot1.t << "," << robot1.u[1] << ","<< robot1.x[7] << "," << robot1.x[8] << "," << wb << "," << wf << "," << r << "," << x[4] << "\n"; // Print the y[1] and y[2] (wb and wf)
+	fout << robot1.t << "," << robot1.u[1] << ","<< robot1.x[7] << "," << robot1.x[8] << "," << wb << "," << wf << "," << y[3] << "," << x[4] << "," << u[1] << "," << mu << "\n"; // Print the y[1] and y[2] (wb and wf)
 		
 	t = t + dt; // increment time		
 }
@@ -241,8 +280,8 @@ double calculate_mu(double r)
 	double mu;
 	double B, C, D, E, rmax;
 	
-//	B=10; C=1.9; D=1; E=0.97; // dry
-	B=12; C=2.3; D=0.82; E=1; // wet	
+	B=10; C=1.9; D=1; E=0.97; // dry
+//	B=12; C=2.3; D=0.82; E=1; // wet	
 //	B=5; C=2; D=0.3; E=1; // snow
 //	B=4; C=2; D=0.1; E=1; // ice
 	

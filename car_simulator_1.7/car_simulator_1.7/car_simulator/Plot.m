@@ -22,7 +22,8 @@ wb = A(:,k); k = k + 1;
 wf = A(:,k); k = k + 1;
 r = A(:,k); k = k + 1;
 v = A(:,k); k = k + 1;
-
+u1 = A(:,k); k = k + 1;
+mu = A(:,k); k = k + 1;
 
 k = 1;
 
@@ -50,3 +51,15 @@ figure(k); k = k + 1;
 plot(t,v);
 ylabel('Forward Velocity');
 xlabel('time');
+
+figure(k); k = k + 1;
+plot(t,u1);
+ylabel('u1');
+xlabel('time');
+
+figure(k); k = k + 1;
+plot(t,mu);
+ylabel('mu');
+xlabel('time');
+
+

@@ -128,10 +128,12 @@ void calculate_control_inputs()
 	dphi = 0.003; // rad
 	
 	if( KEY(VK_UP) ) {
+		robot1.brake_active = false;
 		if( u_s < us_max ) u_s += ds;		
 	}
 		
 	if( KEY(VK_DOWN) ) {
+		robot1.brake_active = false;
 		if( u_s > -us_max ) u_s -= ds;
 	}
 		
@@ -142,16 +144,17 @@ void calculate_control_inputs()
 	if( KEY(VK_RIGHT) )	{
 		if( u_phi > -phi_max ) u_phi -= dphi;	
 	}
-	if (KEY('B')) {
-		 u_s = 0;
+	if (KEY('B') || robot1.brake_active == true) {
+		 //u_s = 0;
+		 robot1.brake_active = true;
+		 robot1.start_acc = true;
 	}
 	
 	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
 	robot1.u[3] = u_phi; // steering angle phi (rad)
-
-
+	
 	//HIL_Data();
 	
 	//Sim_Step_Data();
