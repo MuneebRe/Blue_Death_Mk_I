@@ -59,9 +59,10 @@ void reset_ICs();
 
 void HIL_Data()
 {
+	const int nb_inputs = 8;
 	double output[nb_inputs];
-	reset_bin();
-	get_from_Serial(output);
+	reset_bin(nb_inputs);
+	get_from_Serial(output, nb_inputs);
 
 
 	robot1.y[1] = output[6];
@@ -71,14 +72,41 @@ void HIL_Data()
 
 void Sim_Step_Data()
 {
+	const int nb_inputs = 10;
 	double output[nb_inputs];
-	reset_bin();
-	get_from_Serial(output);
+	reset_bin(nb_inputs);
+	get_from_Serial(output, nb_inputs);
 
 
 	robot1.y[1] = output[8];
 	robot1.y[2] = output[9];
 	robot1.u[1] = output[6];
+}
+
+void input_to_buffer(double u_s, double u_t, double u_phi)
+{
+	ofstream bout;
+	//if (bout.is_open()) return;
+	bout.open("../../../Serial/input.bin", ios::binary);
+
+	char p_buffer_in[12];
+	char* p;
+	float* pf;
+	p = p_buffer_in;
+
+	pf = (float*)p;
+	*pf = u_s;
+	p += sizeof(float);
+
+	pf = (float*)p;
+	*pf = 0.0;
+	p += sizeof(float);
+
+	pf = (float*)p;
+	*pf = u_phi;
+
+	bout.write(p_buffer_in, 12);
+	bout.close();
 }
 
 void calculate_control_inputs()
@@ -157,7 +185,9 @@ void calculate_control_inputs()
 	
 	//HIL_Data();
 	
-	//Sim_Step_Data();
+	Sim_Step_Data();
+
+	input_to_buffer(u_s, 0.0, u_phi);
 	
 	// file output
 	// note: too much output might slow down the controller and simulation

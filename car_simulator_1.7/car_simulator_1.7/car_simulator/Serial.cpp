@@ -10,7 +10,7 @@
 
 using namespace std;
 
-void get_from_Serial(double output[])
+void get_from_Serial(double output[], int nb_inputs)
 {
     char A[150];
     char* p, * pc;
@@ -47,7 +47,7 @@ void get_from_Serial(double output[])
 
 }
 
-void reset_bin()
+void reset_bin(int nb_inputs)
 {
     static bool init = 0;
     int n = 0;

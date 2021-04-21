@@ -15,6 +15,7 @@ const int MS = 2; // number of inputs
 const int PS = 2; // number of outputs (NOTE: dropped S and mu here -- note needed)
 
 float calculate_mu_bw(float r);
+void get_inputs_from_serial(float u[]);
 
 void setup() { // note: setup is analogous to main not loop
 
@@ -82,11 +83,26 @@ void setup() { // note: setup is analogous to main not loop
 		}
 		
 		// calculate control inputs
-		u[1] = 12.0; // motor voltage V(t)
-		u[2] = 0.0; // disturbance torque Td(t)
+		//u[1] = 12.0; // motor voltage V(t)
+	  //u[2] = 0.0; // disturbance torque Td(t)
+
+    /*
+    char buffer_in[3];
+
+    Serial.readBytes(buffer_in, 3);
+    
+    u[1] = (double)buffer_in[1]*(1.00/125.00)*12.00;
+    u[2] = (double)buffer_in[2]*(1.00/125.00)*12.00;
+   */
+/////////////////Real-Time Input Section///////////////////
+
+   get_inputs_from_serial(u);
+   
+//////////////////////////////////////////////////////////
+   
 		for(i=1;i<=MS;i++) {
 			Serial.print(",");
-			Serial.print(u[i],5);		
+			Serial.print(u[i],5);
 		}
 		
 		// Euler simulation step of dt
@@ -282,3 +298,25 @@ float calculate_mu_bw(float r)
 	
 	return mu;
 }
+
+void get_inputs_from_serial(float u[])
+   {
+     char buffer_in[64];
+     Serial.readBytes(buffer_in, 12);
+     
+     char*p;
+     double *pd;
+     p = buffer_in;
+     
+     pd = (double*)p;
+     u[1] = *pd;
+     p +=sizeof(double);
+     
+     pd = (double*)p;
+     u[2] = *pd;
+     p +=sizeof(double);
+     
+     pd = (double*)p;
+     //u[3] = *pd;  Steering angle does not exist, but can be implimented if necessary.
+
+   }

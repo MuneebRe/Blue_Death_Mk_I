@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <iomanip>
 
 using namespace std;
 
@@ -16,6 +17,9 @@ const int nb_inputs = 10;
 int main()
 {
 
+    cout << fixed;
+    cout << setprecision(3);
+
     while (1)
     {
         
@@ -24,7 +28,7 @@ int main()
 
         for (int i = 0; i < nb_inputs; i++)
         {
-            cout << output[i] << "\t\t";
+            cout << output[i] << "  ";
             if (i == nb_inputs - 1) cout << endl;
         }
     }

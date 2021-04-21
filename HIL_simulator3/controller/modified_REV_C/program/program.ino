@@ -16,6 +16,8 @@ float t0;
 
 float ADC_read[3] = {0,0,0};
 
+void get_inputs_from_serial(float u[]);
+
 void setup() 
 {	
 	// Serial startup sequence below ensures reliable / predictable startup /////
@@ -120,14 +122,24 @@ void task1()
 	//
 	wf = (y2 - 2.5) * 0.4 * wmax;
 	// calculate inputs
-	
+
+  /*
 	// step input for u1 at t = 5s and down to zero at t = 10s
 	if(t > 20) {
 		u1 = 0.0;
+    u2 = 0;
 	} else {
 		u1 = 12.0;
+    u2 = 0;
 	}	
-	
+	*/
+  
+  float u[3+1];
+  get_inputs_from_serial(u);
+  u1 = u[1];
+  u2 = 0;
+  
+  
 	// note the maximum input u1 is V_bat (12V)
 	// anything more than 12V or less than -12V
 	// will have no effect on the simulator
@@ -136,7 +148,7 @@ void task1()
 	if( u1 > V_bat )  u1 = V_bat;
 	if( u1 < -V_bat ) u1 = -V_bat;	
 	
-	u2 = 0.0;
+	//u2 = 0.0;
 
 	// convert inputs to actuator values pw1, pw2
 
@@ -336,3 +348,26 @@ ISR(ADC_vect)
   Serial.println(ADC_read[2]);
   */
 }
+
+
+void get_inputs_from_serial(float u[])
+   {
+     char buffer_in[64];
+     Serial.readBytes(buffer_in, 12);
+     
+     char*p;
+     double *pd;
+     p = buffer_in;
+     
+     pd = (double*)p;
+     u[1] = *pd;
+     p +=sizeof(double);
+     
+     pd = (double*)p;
+     u[2] = *pd;
+     p +=sizeof(double);
+     
+     pd = (double*)p;
+     //u[3] = *pd;  Steering angle does not exist, but can be implimented if necessary.
+
+   }

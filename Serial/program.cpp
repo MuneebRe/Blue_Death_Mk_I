@@ -21,7 +21,8 @@ using namespace std;
 #define KEY(c) ( GetAsyncKeyState((int)(c)) & (SHORT)0x8000 )
 
 void Serial_to_Sim();
-
+void get_input_from_bin(float& input1, float& input2, float& input3);
+void push_input_to_controller(float input1, float input2, float input3);
 
 HANDLE h1;
 
@@ -30,6 +31,7 @@ int main()
 	
 	const int NMAX = 64;
 	char buffer_in[NMAX];
+	char buffer_inputs[NMAX];
 	ofstream fout;
 	ifstream fin;
 	char COM_number[10];
@@ -100,6 +102,8 @@ int main()
 	cout << fixed;
 	cout << setprecision(4);
 
+	float input1, input2, input3;
+
 	while(1) {
 		/*
 		// receive data from Arduino
@@ -116,10 +120,26 @@ int main()
 		fout << buffer_in[0];
 		*/
 
-		Serial_to_Sim();
+		
+
+		get_input_from_bin(input1, input2, input3);
+
 
 		// check for termination character from Arduino
+		serial_recv(buffer_in, 1, h1);
 		if (buffer_in[0] == '#') break;
+
+		push_input_to_controller(input1, input2, input3);
+		
+		Serial_to_Sim();
+		
+		
+		//////////////
+		//buffer_in[1] = *pi;
+		//buffer_in[2] = 0;
+
+		//buffer_in[1] = buffer_in[1] * (1.00 / 12.00) * 125;
+		//buffer_in[2] = buffer_in[2] * (1.00 / 12.00) * 125;
 
 		// check for termination character from keyboard
 		if (KEY('X')) break;
@@ -148,7 +168,8 @@ int main()
 
 void Serial_to_Sim()
 {
-	const int nb_inputs = 10;
+	const int nb_inputs = 10;	//If using sim_step, use 10. If using HIL, use 8.
+
 	const int str_limit = 15;
 	const int str_MAX = 120;
 
@@ -275,4 +296,54 @@ void Serial_to_Sim()
 	}
 	cout << endl;
 	*/
+}
+
+void get_input_from_bin(float& input1, float& input2, float& input3)
+{
+	char* p;
+	float* pf;
+
+	ifstream bin;
+	bin.open("input.bin", ios::binary);
+
+	char p_buffer_in[12];
+	bin.read(p_buffer_in, 12);
+
+
+	p = p_buffer_in;
+	pf = (float*)p;
+	input1 = *pf;
+	p += sizeof(float);
+	pf = (float*)p;
+	input2 = *pf;
+	p += sizeof(float);
+	pf = (float*)p;
+	input3 = *pf;
+
+	bin.close();
+
+}
+
+void push_input_to_controller(float input1, float input2, float input3)
+{
+	char buffer_inputs[12];
+
+	char* p, * pc;
+	float* pf;
+
+	p = buffer_inputs;
+
+	pf = (float*)p;
+	*pf = input1;
+	p += sizeof(float);
+
+	pf = (float*)p;
+	*pf = input2;
+	p += sizeof(float);
+
+	pf = (float*)p;
+	*pf = input3;
+
+	serial_send(buffer_inputs, 12, h1);
+
 }
