@@ -32,7 +32,7 @@ const double PI = 4*atan(1.0);
 
 // initial location of car
 // -> you can start the car on any spot of the track
-double X0 = -90.0;
+double X0 = -70.0;
 double Y0 = 11;
 double THETA_0 = 0.0;
 

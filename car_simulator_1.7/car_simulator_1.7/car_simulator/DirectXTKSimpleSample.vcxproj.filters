@@ -38,6 +38,7 @@
     <ClCompile Include="curve.cpp" />
     <ClCompile Include="recipes.cpp" />
     <ClCompile Include="nrutil.cpp" />
+    <ClCompile Include="BDMK1.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="3D_graphics.lib" />
@@ -54,5 +55,6 @@
     <ClInclude Include="curve.h" />
     <ClInclude Include="recipes.h" />
     <ClInclude Include="nrutil.h" />
+    <ClInclude Include="BDMK1.h" />
   </ItemGroup>
 </Project>

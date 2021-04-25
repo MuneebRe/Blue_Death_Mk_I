@@ -198,6 +198,11 @@ void draw_3D_graphics()
 	draw_car(x,y,z,yaw,pitch,roll,th_front,th_back,th_steer);
 	
 	view.acquire();
+
+	view.set_processing(1);		//Run filter for blue, orange, green and red
+	view.processing();			//to find centroid location for each
+
+
 	view.view();
 
 }

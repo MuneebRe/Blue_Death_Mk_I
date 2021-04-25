@@ -197,6 +197,7 @@
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BDMK1.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="cubic_spline.cpp" />
@@ -222,6 +223,7 @@
     <Library Include="image_transfer.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BDMK1.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="cubic_spline.h" />
     <ClInclude Include="curve.h" />
