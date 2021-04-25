@@ -185,7 +185,7 @@ void calculate_control_inputs()
 	
 	//HIL_Data();
 	
-	Sim_Step_Data();
+	//Sim_Step_Data();
 
 	input_to_buffer(u_s, 0.0, u_phi);
 	

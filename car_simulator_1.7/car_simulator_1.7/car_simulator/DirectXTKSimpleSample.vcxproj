@@ -197,24 +197,40 @@
     <Manifest Include="settings.manifest" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="controller.cpp" />
+    <ClCompile Include="cubic_spline.cpp" />
+    <ClCompile Include="curve.cpp" />
     <ClCompile Include="draw_3D_graphics.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="image_transfer5.cpp" />
+    <ClCompile Include="image_transfer7.cpp" />
+    <ClCompile Include="nrutil.cpp" />
     <ClCompile Include="ran.cpp" />
     <ClCompile Include="ran2.cpp" />
     <ClCompile Include="ran3.cpp" />
+    <ClCompile Include="recipes.cpp" />
     <ClCompile Include="robot.cpp" />
     <ClCompile Include="rotation.cpp" />
     <ClCompile Include="Serial.cpp" />
     <ClCompile Include="timer.cpp" />
+    <ClCompile Include="vision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="3D_graphics.lib" />
     <Library Include="DirectXTK.lib" />
+    <Library Include="image_transfer.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="cubic_spline.h" />
+    <ClInclude Include="curve.h" />
+    <ClInclude Include="image_transfer.h" />
+    <ClInclude Include="image_transfer7.h" />
+    <ClInclude Include="nrutil.h" />
+    <ClInclude Include="recipes.h" />
     <ClInclude Include="Serial.h" />
+    <ClInclude Include="vision.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

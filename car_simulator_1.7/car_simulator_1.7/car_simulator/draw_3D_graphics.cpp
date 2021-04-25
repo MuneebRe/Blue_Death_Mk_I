@@ -14,10 +14,15 @@
 #include "graphics.h"
 #include "ran.h"
 
-#include "image_transfer5.h"
+//#include "image_transfer5.h"
+#include "image_transfer7.h"
 
 #include "robot.h"
 #include "controller.h"
+
+#include "Camera.h"
+
+#include "curve.h"
 
 const double PI = 4*atan(1.0);
 
@@ -30,8 +35,8 @@ double *XB, *YB, *ZB, *RB, *GB, *BB, *UB, *VB;
 int MAX_VERTICES = 100000;
 
 // default window size
-int WINDOW_WIDTH = 1920;
-int WINDOW_HEIGHT = 1080;
+int WINDOW_WIDTH = 640;
+int WINDOW_HEIGHT = 480;
 
 // 1 - use border, 0 - no border
 int BORDER_DEFAULT = 1; 
@@ -95,6 +100,7 @@ extern double THETA_VIEW;
 using namespace std;
 
 image b;
+Camera view(true, 0, 640, 480, RGB_IMAGE, true, 1);
 
 static ofstream fout("timing.txt");
 
@@ -126,6 +132,8 @@ void draw_3D_graphics()
 	// initalization section
 	if( !init ) {
 		tc0 = high_resolution_time(); // initial clock time (s)
+
+		activate_vision();
 
 		init = 1;
 	} // end of initialization section
@@ -162,9 +170,36 @@ void draw_3D_graphics()
 	
 	th_steer = u_phi;
 	
+	double pixels_per_m = 21.15; // scale of track images
+	double x_offset = -1690.5;
+	double s_begin = -4.00e2;// 3.7500000e+02; // begining of curve
+	//double s_end = 2.7275000e+04; // end of curve
+	double s_end = (2.7275000e+04 - s_begin) / 2.00000;
+
+	for (double s = s_begin; s < s_end; s = s + 150)
+	{
+		double x, y, xd, yd, xdd, ydd, theta;
+		curve(s, x, y, xd, yd, xdd, ydd);
+
+		// adjust x offset between full and half track
+
+		x = x + x_offset;
+
+		// convert x and y to m
+		x = x / pixels_per_m;
+		y = y / pixels_per_m;
+		theta = atan2(yd, xd);
+
+		draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 0, 0, 0, 1);
+		//draw_box(x, y, -0.34, theta, 0, 0, 3, 0.5, 0.025, 255, 255, 255, 1);
+	}
+
 	// draw car
 	draw_car(x,y,z,yaw,pitch,roll,th_front,th_back,th_steer);
 	
+	view.acquire();
+	view.view();
+
 }
 
 

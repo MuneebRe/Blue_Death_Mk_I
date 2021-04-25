@@ -31,12 +31,28 @@
     <ClCompile Include="robot.cpp" />
     <ClCompile Include="controller.cpp" />
     <ClCompile Include="Serial.cpp" />
+    <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="image_transfer7.cpp" />
+    <ClCompile Include="vision.cpp" />
+    <ClCompile Include="cubic_spline.cpp" />
+    <ClCompile Include="curve.cpp" />
+    <ClCompile Include="recipes.cpp" />
+    <ClCompile Include="nrutil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="3D_graphics.lib" />
     <Library Include="DirectXTK.lib" />
+    <Library Include="image_transfer.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Serial.h" />
+    <ClInclude Include="Camera.h" />
+    <ClInclude Include="image_transfer.h" />
+    <ClInclude Include="image_transfer7.h" />
+    <ClInclude Include="vision.h" />
+    <ClInclude Include="cubic_spline.h" />
+    <ClInclude Include="curve.h" />
+    <ClInclude Include="recipes.h" />
+    <ClInclude Include="nrutil.h" />
   </ItemGroup>
 </Project>
