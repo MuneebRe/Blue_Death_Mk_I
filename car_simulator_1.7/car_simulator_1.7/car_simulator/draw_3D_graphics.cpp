@@ -28,6 +28,8 @@
 
 #include "vision.h"
 
+#include <thread>
+
 const double PI = 4*atan(1.0);
 
 #define SQR(x)	((x)*(x))
@@ -120,6 +122,56 @@ robot robot1(X0,Y0,THETA_0);
 void draw_car(double x_c, double y_c, double z_c, double yaw_c, double pitch_c,
 	double roll_c, double th_front, double th_back, double th_steer);
 
+double global_yaw;
+bool s_finished = false;
+
+void DoWork()
+{
+	using namespace std::literals::chrono_literals;
+	
+	if (s_finished == false)
+	{
+	
+		//std::this_thread::sleep_for(3s);
+
+		double pt_i;
+		double pt_j;
+
+		//view.acquire();
+		
+		view.set_processing(6);		//Run filter for blue, orange, green and red
+		view.processing();			//to find centroid location for each
+		pt_i = view.get_ic();	//And put them in this array
+		pt_j = view.get_jc();	//For each color
+		
+		view.set_processing(1);		//Run filter for blue, orange, green and red
+		view.processing();			//to find centroid location for each
+
+		bdmk1.label_nb_1 = view.label_at_coordinate(pt_i, pt_j);
+
+		view.track_object(pt_i, pt_j);
+		
+		bdmk1.set_coord(pt_i, pt_j);
+		bdmk1.set_theta(global_yaw);
+
+
+		bdmk1.highlight_view(view);
+		/*
+		//view.set_processing(13);
+		//view.processing();
+		*/
+		draw_point_rgb(view.rgb, pt_i, pt_j, 255, 0, 0);
+		
+		//view.view();
+
+		s_finished = true;
+	}
+		
+		
+
+	
+}
+
 void draw_3D_graphics()
 {
 	static int init = 0; // initialization flag
@@ -202,10 +254,24 @@ void draw_3D_graphics()
 	// draw car
 	draw_car(x,y,z,yaw,pitch,roll,th_front,th_back,th_steer);
 
-	double pt_i;
-	double pt_j;
+	global_yaw = yaw;
 
+
+	std::thread worker(DoWork);
+
+	if (s_finished == true)
+	{
+		view.view();
+		s_finished = false;
+		view.acquire();
+	}
+
+	if (worker.joinable())
+	{
+		worker.join();
+	}
 	
+	/*
 	view.acquire();
 
 	view.set_processing(6);		//Run filter for blue, orange, green and red
@@ -232,7 +298,7 @@ void draw_3D_graphics()
 	draw_point_rgb(view.rgb, pt_i, pt_j, 255, 0, 0);
 
 	view.view();
-
+	*/
 }
 
 
