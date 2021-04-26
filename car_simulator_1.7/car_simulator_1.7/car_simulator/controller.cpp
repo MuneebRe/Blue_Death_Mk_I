@@ -22,6 +22,14 @@
 
 #include "controller.h"
 
+#include "image_transfer7.h"
+
+#include "Camera.h"
+
+#include "BDMK1.h"
+
+extern BDMK1 bdmk1;
+
 using namespace std;
 
 const double PI = 4*atan(1.0);
@@ -177,6 +185,9 @@ void calculate_control_inputs()
 		 robot1.brake_active = true;
 		 robot1.start_acc = true;
 	}
+
+
+	bdmk1.VFF_control(u_s, u_phi);
 	
 	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
@@ -203,6 +214,7 @@ void calculate_control_inputs()
 
 	}
 
+	
 }
 
 

@@ -902,7 +902,7 @@ void BDMK1::highlight_view(Camera& view)
 	double theta_index = 0;
 	double theta_jump = 0.1;
 	int radar_minimum = 55;
-	int radius_jump = 11;
+	int radius_jump = 5;
 	int radius_limit;
 	double vector_x = 0;
 	double vector_y = 0;
@@ -1115,31 +1115,42 @@ void BDMK1::hide_shadows(int arrx[], int arry[], Camera& view, double theta_inde
 	delete[]k;
 
 }
-/*
+
 void BDMK1::VFF_control(double& us, double& phi)
 {
-	double ds = 12;
-	double dphi = 0.5;
+	double ds = (VFF_mag/1199.46)*0.5;
+	double dphi = 0.20;
 
-	us += ds;
+	us = ds;
+
+	/*
+	ofstream fout;
+	fout.open("VFF_debug.txt");
+	fout << VFF_mag << endl;
+	fout.close();
+	*/
 
 	double theta_delta;
 	int aim_dir;
 
 	theta_target_delta_fix(VFF_theta, theta_delta, aim_dir);
+	theta_delta /= 5.0;
 
+	
 	if (aim_dir == -1)
 	{
-		phi -= dphi;
+		//phi += dphi;
+		phi += theta_delta;
 	}
 
 	if (aim_dir == 1)
 	{
-		phi += dphi;
+		//phi -= dphi;
+		phi -= theta_delta;
 	}
 
 }
-*/
+
 void BDMK1::label_enemy(Camera& view, BDMK1 enemy)
 {
 

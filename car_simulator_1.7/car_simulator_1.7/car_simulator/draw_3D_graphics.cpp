@@ -198,6 +198,8 @@ void draw_3D_graphics()
 	// calculate control inputs
 	calculate_control_inputs();
 
+	//bdmk1.VFF_control(robot1.u[1], robot1.u[3]);
+
 	// read clock time
 	tc = high_resolution_time() - tc0;
 	
@@ -248,6 +250,9 @@ void draw_3D_graphics()
 		theta = atan2(yd, xd);
 
 		draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 0, 0, 0, 1);
+
+		//if(s == s_begin + 1500) draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 255, 255, 255, 1);
+
 		//draw_box(x, y, -0.34, theta, 0, 0, 3, 0.5, 0.025, 255, 255, 255, 1);
 	}
 
@@ -259,6 +264,11 @@ void draw_3D_graphics()
 
 	std::thread worker(DoWork);
 
+	if (worker.joinable())
+	{
+		worker.join();
+	}
+
 	if (s_finished == true)
 	{
 		view.view();
@@ -266,10 +276,7 @@ void draw_3D_graphics()
 		view.acquire();
 	}
 
-	if (worker.joinable())
-	{
-		worker.join();
-	}
+	
 	
 	/*
 	view.acquire();
