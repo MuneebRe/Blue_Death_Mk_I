@@ -46,6 +46,8 @@ double THETA_0 = 0.0;
 
 extern robot robot1;
 
+extern bool VFF_Feature;
+
 // make global since u_phi is needed by the graphics program
 // to draw the angle of the front wheels when they steer
 double u_s = 0.0, u_phi = 0.0;	
@@ -186,10 +188,10 @@ void calculate_control_inputs()
 		 robot1.start_acc = true;
 	}
 
-
+	VFF_Feature = 0;
 	bdmk1.VFF_control(u_s, us_max, u_phi, phi_max, t);
 
-	// set inputs in the robot model
+	// set inputs in the robot modelf
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
 	robot1.u[3] = u_phi; // steering angle phi (rad)

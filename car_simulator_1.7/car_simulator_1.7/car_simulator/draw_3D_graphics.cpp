@@ -108,6 +108,7 @@ using namespace std;
 image b;
 Camera view(true, 0, WINDOW_WIDTH, WINDOW_HEIGHT, RGB_IMAGE, true, 1);
 BDMK1 bdmk1;
+bool VFF_Feature = 0;
 
 static ofstream fout("timing.txt");
 
@@ -251,7 +252,7 @@ void draw_3D_graphics()
 
 		draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 0, 0, 0, 1);
 
-		if (s == s_begin + 1500) draw_box(x, y + 19 , -0.35, theta, 0, 0, 10, 12, 0.025, 255, 255, 255, 1);
+		//if (s == s_begin + 1500) draw_box(x, y + 19 , -0.35, theta, 0, 0, 10, 12, 0.025, 255, 255, 255, 1);
 
 		//draw_box(x, y, -0.34, theta, 0, 0, 3, 0.5, 0.025, 255, 255, 255, 1);
 	}
@@ -261,22 +262,23 @@ void draw_3D_graphics()
 
 	global_yaw = yaw;
 
-
-	std::thread worker(DoWork);
-
-	if (worker.joinable())
+	if (VFF_Feature == 1)
 	{
-		worker.join();
+		std::thread worker(DoWork);
+
+		if (worker.joinable())
+		{
+			worker.join();
+		}
+
+		if (s_finished == true)
+		{
+			view.view();
+			s_finished = false;
+			view.acquire();
+		}
 	}
 
-	if (s_finished == true)
-	{
-		view.view();
-		s_finished = false;
-		view.acquire();
-	}
-
-	
 	
 	/*
 	view.acquire();
