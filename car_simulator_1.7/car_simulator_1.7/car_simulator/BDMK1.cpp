@@ -145,6 +145,7 @@ void BDMK1::set_theta(double theta)
 	{
 		theta = theta + 2 * M_PI;
 	}
+
 	this->theta = theta;
 }
 
@@ -1116,39 +1117,103 @@ void BDMK1::hide_shadows(int arrx[], int arry[], Camera& view, double theta_inde
 
 }
 
-void BDMK1::VFF_control(double& us, double& phi)
+void BDMK1::VFF_control(double& u_s, double us_max, double& phi, double phi_max, double t)
 {
-	double ds = (VFF_mag/1199.46)*0.5;
-	double dphi = 0.20;
+	ofstream fout;
+	fout.open("VFF_debug.txt");
 
+	static double time1 = 0;
+	static double time2 = 0.1;
+	double time_delta;
+	time2 = high_resolution_time();
+	time_delta = time2 - time1;
+	time1 = time2;
+
+	double kp_PID = 0.40;
+	double kd_PID = 0.10;
+	double ki_PID = 0.05;
+
+	static double error = 0;
+	static double old_error = 0;
+	static double error_dot = 0;
+	static double int_error = 0;
+
+	static double theta_delta;
+	int aim_dir;
+
+	theta_target_delta_fix(VFF_theta, theta_delta, aim_dir);
+	if (aim_dir == 1)
+	{
+		theta_delta = -theta_delta;
+	}
+	if (aim_dir == -1)
+	{
+		theta_delta = theta_delta;
+	}
+	fout << VFF_mag << endl;
+	error = theta_delta;
+	error_dot = (error - old_error) / time_delta;
+	int_error = int_error + error * time_delta;
+	phi = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
+	//phi = -0.03;
+
+	old_error = error;
+
+	//u_s = 12.00;
+
+	if (u_s > us_max) u_s = us_max;
+	if (u_s < -us_max) u_s = -us_max;
+	if (phi > phi_max) phi = phi_max;
+	if (phi < -phi_max) phi = -phi_max;
+
+	fout.close();
+
+	/*
+	error = theta_delta; //Find error between the forward velocity and rear wheel velocity
+	error_dot = (error - old_error) / dt; //Find the derivative error
+	int_error = int_error + error * dt; // Find the integral  error
+	u[1] = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
+	old_error = error;
+	*/
+	/*
+	if (u[1] >= robot1.u[1])u[1] = robot1.u[1]; // Max voltage will be equal to the max value determined by the user
+	if (u[1] <= 0) u[1] = 0; //Lower limit
+	if (v > 20) start_acc = false;
+	*/
+	/*
+	double ds = (VFF_mag/1199.46)*12.00;
+	double dphi = 0.015;
+	
 	us = ds;
+	*/
 
+	//u_s = (VFF_mag / 1199.46) * 12.00;
 	/*
 	ofstream fout;
 	fout.open("VFF_debug.txt");
 	fout << VFF_mag << endl;
 	fout.close();
 	*/
-
+	/*
 	double theta_delta;
 	int aim_dir;
 
 	theta_target_delta_fix(VFF_theta, theta_delta, aim_dir);
-	theta_delta /= 5.0;
+	//theta_delta /= 5.0;
 
 	
-	if (aim_dir == -1)
+	if (aim_dir == -1 && abs(theta_delta) > 0.05)
 	{
-		//phi += dphi;
-		phi += theta_delta;
+		phi += dphi;
+		//phi += theta_delta;
 	}
 
-	if (aim_dir == 1)
+	if (aim_dir == 1 && abs(theta_delta) > 0.05)
 	{
-		//phi -= dphi;
-		phi -= theta_delta;
+		phi -= dphi;
+		//phi -= theta_delta;
 	}
-
+	*/
 }
 
 void BDMK1::label_enemy(Camera& view, BDMK1 enemy)

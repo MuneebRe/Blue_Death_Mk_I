@@ -160,7 +160,7 @@ void calculate_control_inputs()
 	
 	// read inputs from the keyboard ////////////
 	
-	ds = 0.01; // V
+	ds = 2; // V
 	dphi = 0.003; // rad
 	
 	if( KEY(VK_UP) ) {
@@ -187,8 +187,8 @@ void calculate_control_inputs()
 	}
 
 
-	bdmk1.VFF_control(u_s, u_phi);
-	
+	bdmk1.VFF_control(u_s, us_max, u_phi, phi_max, t);
+
 	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
@@ -198,7 +198,7 @@ void calculate_control_inputs()
 	
 	//Sim_Step_Data();
 
-	input_to_buffer(u_s, 0.0, u_phi);
+	//input_to_buffer(u_s, 0.0, u_phi);
 	
 	// file output
 	// note: too much output might slow down the controller and simulation

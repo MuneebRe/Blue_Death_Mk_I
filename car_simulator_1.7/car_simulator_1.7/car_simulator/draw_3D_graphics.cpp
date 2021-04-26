@@ -251,7 +251,7 @@ void draw_3D_graphics()
 
 		draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 0, 0, 0, 1);
 
-		//if(s == s_begin + 1500) draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 255, 255, 255, 1);
+		if (s == s_begin + 1500) draw_box(x, y + 19 , -0.35, theta, 0, 0, 10, 12, 0.025, 255, 255, 255, 1);
 
 		//draw_box(x, y, -0.34, theta, 0, 0, 3, 0.5, 0.025, 255, 255, 255, 1);
 	}
@@ -335,7 +335,7 @@ void draw_car(double x_c, double y_c, double z_c, double yaw_c, double pitch_c,
 
 	// initialization section
 	if( !init ) {		
-		view_flag = 1; // view ID number
+		view_flag = 5; // view ID number
 		fov = 3.14159/4; // field of view
 		init = 1;
 	}

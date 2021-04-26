@@ -93,7 +93,7 @@ public:
 	void hide_shadows(int arrx[], int arry[], Camera& view, double theta_index, int& radar_radius, int radius_limit, int radius_jump);
 	void VFF_section_modifier(double theta_index, double offset, double range, int& radius_limit, int limit_val, double& multiplier, double multiplier_val);
 
-	void VFF_control(double& us, double& phi);
+	void VFF_control(double& u_s, double us_max, double& phi, double phi_max, double t);
 
 	~BDMK1();
 };
