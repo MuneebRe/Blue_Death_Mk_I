@@ -1119,8 +1119,8 @@ void BDMK1::hide_shadows(int arrx[], int arry[], Camera& view, double theta_inde
 
 void BDMK1::VFF_control(double& u_s, double us_max, double& phi, double phi_max, double t)
 {
-	ofstream fout;
-	fout.open("VFF_debug.txt");
+	//ofstream fout;
+	//fout.open("VFF_debug.txt");
 
 	static double time1 = 0;
 	static double time2 = 0.1;
@@ -1150,7 +1150,7 @@ void BDMK1::VFF_control(double& u_s, double us_max, double& phi, double phi_max,
 	{
 		theta_delta = theta_delta;
 	}
-	fout << VFF_mag << endl;
+	//fout << VFF_mag << endl;
 	error = theta_delta;
 	error_dot = (error - old_error) / time_delta;
 	int_error = int_error + error * time_delta;
@@ -1166,7 +1166,7 @@ void BDMK1::VFF_control(double& u_s, double us_max, double& phi, double phi_max,
 	if (phi > phi_max) phi = phi_max;
 	if (phi < -phi_max) phi = -phi_max;
 
-	fout.close();
+	//fout.close();
 
 	/*
 	error = theta_delta; //Find error between the forward velocity and rear wheel velocity
