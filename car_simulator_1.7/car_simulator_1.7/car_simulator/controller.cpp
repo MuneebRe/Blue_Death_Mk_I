@@ -14,6 +14,7 @@
 #include "timer.h" // for measuring time
 #include "rotation.h" // for computing rotation functions
 #include "3D_graphics.h" // user functions for DirectX 3D graphics
+#include "Serial.h"
 
 #include "graphics.h"
 
@@ -27,7 +28,7 @@ const double PI = 4*atan(1.0);
 
 // output file for testing / debugging purposes since 
 // console output is not easy in a graphics program
-ofstream fout("output.txt");
+//ofstream fout("output.txt");
 
 // initial location of car
 // -> you can start the car on any spot of the track
@@ -56,10 +57,35 @@ void reset_ICs();
 // in an Arduino program -- it get's exectuted as fast as possible.
 // -- ie this isn't like a main
 
+void HIL_Data()
+{
+	double output[nb_inputs];
+	reset_bin();
+	get_from_Serial(output);
+
+
+	robot1.y[1] = output[6];
+	robot1.y[2] = output[7];
+	robot1.u[1] = output[4];
+}
+
+void Sim_Step_Data()
+{
+	double output[nb_inputs];
+	reset_bin();
+	get_from_Serial(output);
+
+
+	robot1.y[1] = output[8];
+	robot1.y[2] = output[9];
+	robot1.u[1] = output[6];
+}
+
 void calculate_control_inputs()
 {	
+
 	// set state variables and outputs each time in the control loop
-	
+
 	double im = robot1.x[1]; // motor current im (A)
 	double wm = robot1.x[2]; // motor speed wm (rad/s)
 	double theta = robot1.x[3]; // motor angle, theta (rad)	
@@ -84,14 +110,14 @@ void calculate_control_inputs()
 	
 	double ds, dphi;
 
-	static double t_reset = 30;
+	static double t_reset = 300;
 
 	static int init = 0;
 	
 	// initialization section -- gets exectuted once at the beginning
 	if( !init ) {
 		
-		fout << scientific;
+		//fout << scientific;
 		
 		init = 1;
 	}
@@ -102,10 +128,12 @@ void calculate_control_inputs()
 	dphi = 0.003; // rad
 	
 	if( KEY(VK_UP) ) {
+		robot1.brake_active = false;
 		if( u_s < us_max ) u_s += ds;		
 	}
 		
 	if( KEY(VK_DOWN) ) {
+		robot1.brake_active = false;
 		if( u_s > -us_max ) u_s -= ds;
 	}
 		
@@ -116,21 +144,33 @@ void calculate_control_inputs()
 	if( KEY(VK_RIGHT) )	{
 		if( u_phi > -phi_max ) u_phi -= dphi;	
 	}
+	if (KEY('B') || robot1.brake_active == true) {
+		 //u_s = 0;
+		 robot1.brake_active = true;
+		 robot1.start_acc = true;
+	}
 	
 	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
 	robot1.u[3] = u_phi; // steering angle phi (rad)
 	
+	//HIL_Data();
+	
+	//Sim_Step_Data();
+	
 	// file output
 	// note: too much output might slow down the controller and simulation
-	fout << t << "," << xc << "," << yc << "," << u_s << "," << u_phi << "\n";
-
+	//fout << t << "," << xc << "," << yc << "," << robot1.u[1] << "," << u_phi << "\n";
+	//fout << t << "," << robot1.u[1] << endl;
+	
 	// how to periodically reset the ICs
 	// -- in case you want to perform some repeated tests, etc.
 	if( t > t_reset ) {
 		reset_ICs();
-		t_reset += 30; // reset 30 seconds later
+		//t_reset += 30; // reset 30 seconds later
+		t_reset += 300; // reset 30 seconds later
+
 	}
 
 }

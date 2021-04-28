@@ -30,9 +30,13 @@
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="robot.cpp" />
     <ClCompile Include="controller.cpp" />
+    <ClCompile Include="Serial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="3D_graphics.lib" />
     <Library Include="DirectXTK.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Serial.h" />
   </ItemGroup>
 </Project>

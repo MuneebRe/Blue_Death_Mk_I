@@ -7,9 +7,7 @@ close ALL;
 
 % load array from file into matlab
 % note that columns can be separated by space / tab or commas in matlab
-temp = importdata('output.txt', ',', 1);
-A = temp.data;
-delete temp;
+A = load('output.txt');
 
 % file format
 % time(s),x1,x2,x3,x4,x5

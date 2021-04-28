@@ -26,6 +26,10 @@ class robot {
 	// traction model parameters
 	double m, Rw, g, Q, GR; ///
 	
+	double error, old_error, error_dot, int_error;
+	double kp_PID, kd_PID, ki_PID;
+	bool brake_active, start_acc;
+
 	// simple car parameters
 	double Lc; // length between forward and rear wheel axes (m)
 	
@@ -33,7 +37,7 @@ class robot {
 	robot(double x0, double y0, double theta0);
 
 	// simulation function -- simulate from t to t+dt
-	void sim_step(double dt);
+	void sim_step(double dt, robot robot1);
 
 };
 

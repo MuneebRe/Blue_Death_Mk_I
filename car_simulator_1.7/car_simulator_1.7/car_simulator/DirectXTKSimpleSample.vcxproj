@@ -206,11 +206,15 @@
     <ClCompile Include="ran3.cpp" />
     <ClCompile Include="robot.cpp" />
     <ClCompile Include="rotation.cpp" />
+    <ClCompile Include="Serial.cpp" />
     <ClCompile Include="timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="3D_graphics.lib" />
     <Library Include="DirectXTK.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Serial.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

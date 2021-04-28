@@ -85,20 +85,20 @@ void setup() { // note: setup is analogous to main not loop
 		u[1] = 12.0; // motor voltage V(t)
 		u[2] = 0.0; // disturbance torque Td(t)
 		for(i=1;i<=MS;i++) {
-//			Serial.print(",");
-//			Serial.print(u[i],5);		
+			Serial.print(",");
+			Serial.print(u[i],5);		
 		}
 		
 		// Euler simulation step of dt
 		sim_step(t,x,u,dt,y);
 	
-/*	
+	
 		// outputs of interest for plotting
 		for(i=1;i<=PS;i++) {
 			Serial.print(",");
 			Serial.print(y[i],5);				
 		}	
-*/	
+	
 		// each row represents a given time
 		if( t < tf ) Serial.print("\n"); // move on to next row
 		
