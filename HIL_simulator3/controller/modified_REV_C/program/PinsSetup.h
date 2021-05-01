@@ -51,6 +51,7 @@ void ADC_setup()
   // this gives a conversion theoretical time of 116 microseconds for one channel
   
   ADCSRA |= BIT(ADPS1) | BIT(ADPS2); // 64 prescaler
+  //ADCSRA |= BIT(ADPS2); // 32 prescaler
   // this gives a conversion time of 60 microseconds for one channel
 
 

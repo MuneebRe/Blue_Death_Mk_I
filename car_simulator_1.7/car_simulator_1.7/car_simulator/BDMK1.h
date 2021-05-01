@@ -10,6 +10,8 @@
 
 #include "Camera.h"
 
+const double velocity_target_tol = 0.5;
+
 class BDMK1
 {
 public:
@@ -80,7 +82,6 @@ public:
 	void distance_sensor(Camera& view, BDMK1 enemy);
 	void distance_input(int arrx[], int arry[], Camera& view, int i);
 	void is_obstacle_before_enemy(int arrx[], int arry[], BDMK1 enemy, Camera& view);
-	void label_enemy(Camera& view, BDMK1 enemy);
 	void fill_wheel_void(Camera& view);
 
 	
@@ -93,7 +94,10 @@ public:
 	void hide_shadows(int arrx[], int arry[], Camera& view, double theta_index, int& radar_radius, int radius_limit, int radius_jump);
 	void VFF_section_modifier(double theta_index, double offset, double range, int& radius_limit, int limit_val, double& multiplier, double multiplier_val);
 
-	void VFF_control(double& u_s, double us_max, double& phi, double phi_max, double t);
+	void VFF_control(bool feature_state, double& u_s, double us_max, double& phi, double phi_max, double t, double interval);
+	void speed_PID(double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval);
+	void traction_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
+	void brake_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
 
 	~BDMK1();
 };

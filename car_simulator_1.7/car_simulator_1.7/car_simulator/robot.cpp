@@ -18,6 +18,8 @@ using namespace std;
 
 ofstream fout("output.txt");
 
+bool HIL_wb_wf = 0;
+
 robot::robot(double x0, double y0, double theta0)
 {
 	// model parameters //////////////////
@@ -74,6 +76,7 @@ robot::robot(double x0, double y0, double theta0)
 	y[3] = 0.0;
 	y[4] = 0.0;
 
+	/*
 	// PID Controller Initialization
 	
 	error = 0;
@@ -87,7 +90,7 @@ robot::robot(double x0, double y0, double theta0)
 	
 	brake_active = true;
 	start_acc = true;
-	
+	*/
 }
 
 
@@ -127,21 +130,21 @@ void robot::sim_step(double dt, robot robot1)
 	// checking for / 0 is not needed because of tol
 	r = ( wb * Rw - v ) / ( fabs(v) + tol ); ///
 	if (r > 10) r = 10;
-
+	if (r < -10) r = 0;
 
 	// calculate friction coefficient
 	mu = calculate_mu(r); ///
 	
 	// outputs of interest for plotting
 	
-	//y[1] = wb; // back wheel velocity (rad/s)
+	if (HIL_wb_wf != 1) y[1] = wb; // back wheel velocity (rad/s)
 	//y[1] = output[6];
 	
 	// calculate front wheel angular velocity wf
 	// v = wf * Rw -> wf = v / Rw
 	wf = v / Rw;
 	
-	//y[2] = wf; // front wheel velocity (rad/s) 	
+	if (HIL_wb_wf != 1) y[2] = wf; // front wheel velocity (rad/s) 	
 	//y[2] = output[7];
 
 	y[3] = r;
@@ -153,6 +156,7 @@ void robot::sim_step(double dt, robot robot1)
 	
 	/// tau_b = GR * tau_m -> tau_m = tau_b / GR
 	
+	/*
 	// Acceleration From Stand Still
 	
 	if (start_acc == true && r > 0.1 && brake_active == false)
@@ -191,20 +195,22 @@ void robot::sim_step(double dt, robot robot1)
 	}
 
 	// Breaking Control
+	*/
 
-	if ( brake_active == true ) {
-		/*
-		error = 0 - v; //Find error between the forward velocity and rear wheel velocity
-		error_dot = (error - old_error) / dt; //Find the derivative error
-		int_error = int_error + error * dt; // Find the integral  error
-		u[1] = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
-		old_error = error;
-		if (u[1] >= robot1.u[1]) u[1] = robot1.u[1];
-		if (u[1] <= 0) u[1] = 0;
-		if (v > 5) u[1] = 0;
-		*/
-		u[1] = 0;
-	}
+	
+	//if ( brake_active == true ) {  CTRL+K->U to UNCOMMENT
+	//	/*
+	//	error = 0 - v; //Find error between the forward velocity and rear wheel velocity
+	//	error_dot = (error - old_error) / dt; //Find the derivative error
+	//	int_error = int_error + error * dt; // Find the integral  error
+	//	u[1] = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
+	//	old_error = error;
+	//	if (u[1] >= robot1.u[1]) u[1] = robot1.u[1];
+	//	if (u[1] <= 0) u[1] = 0;
+	//	if (v > 5) u[1] = 0;
+	//	*/
+	//	u[1] = 0;
+	//}
 	
 	// DC motor equations (modified for tire torque Rw*Ft)
 	xd[1] = (-x[1]*R - kb*x[2] + u[1])/L; // di/dt
@@ -223,19 +229,7 @@ void robot::sim_step(double dt, robot robot1)
 	// new state-variable equations for the traction model
 	xd[4] = Ft / m; // dv/dt
 	xd[5] = x[4]; // dx/dt = v
-	//xd[4] = output[4];
-	//xd[5] = output[5];
 
-	/*
-	double output[nb_inputs];
-	reset_bin();
-	get_from_Serial(output);
-
-	for (int i = 1; i<6;i++)
-	{
-		x[i] = output[i];
-	}
-	*/
 	// new state-variable equations for simple car model
 
 	u_s = v; // forward speed input (m/s)

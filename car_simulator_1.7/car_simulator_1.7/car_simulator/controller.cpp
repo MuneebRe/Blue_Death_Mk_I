@@ -67,8 +67,11 @@ void reset_ICs();
 // in an Arduino program -- it get's exectuted as fast as possible.
 // -- ie this isn't like a main
 
+extern bool HIL_wb_wf;
+
 void HIL_Data()
 {
+	HIL_wb_wf = 1;
 	const int nb_inputs = 8;
 	double output[nb_inputs];
 	reset_bin(nb_inputs);
@@ -82,6 +85,7 @@ void HIL_Data()
 
 void Sim_Step_Data()
 {
+	HIL_wb_wf = 1;
 	const int nb_inputs = 10;
 	double output[nb_inputs];
 	reset_bin(nb_inputs);
@@ -166,12 +170,12 @@ void calculate_control_inputs()
 	dphi = 0.003; // rad
 	
 	if( KEY(VK_UP) ) {
-		robot1.brake_active = false;
+		//robot1.brake_active = false;
 		if( u_s < us_max ) u_s += ds;		
 	}
 		
 	if( KEY(VK_DOWN) ) {
-		robot1.brake_active = false;
+		//robot1.brake_active = false;
 		if( u_s > -us_max ) u_s -= ds;
 	}
 		
@@ -182,23 +186,50 @@ void calculate_control_inputs()
 	if( KEY(VK_RIGHT) )	{
 		if( u_phi > -phi_max ) u_phi -= dphi;	
 	}
+
+	/*
 	if (KEY('B') || robot1.brake_active == true) {
 		 //u_s = 0;
-		 robot1.brake_active = true;
-		 robot1.start_acc = true;
+		 //robot1.brake_active = true;
+		 //robot1.start_acc = true;
 	}
+	*/
+
+	/*
+	if (t < 20)
+	{
+		u_s = 12.0;
+	}
+	else
+	{
+		u_s = 12.0;
+	}
+	*/
 
 	VFF_Feature = 0;
-	bdmk1.VFF_control(u_s, us_max, u_phi, phi_max, t);
+
+	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
+
+	double velocity_target = 0;
+
+	if (t > 1) velocity_target = 20;
+	if (t > 10) velocity_target = 0.00;
+
+	//Sim_Step_Data();
+	//HIL_Data();
+
+	bdmk1.speed_PID(velocity_target, wf, robot1.Rw, u_s, us_max, t, 0.003);
+
+	bdmk1.traction_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+	
+	bdmk1.brake_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+
+	//HIL_Data();
 
 	// set inputs in the robot modelf
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
 	robot1.u[3] = u_phi; // steering angle phi (rad)
-	
-	//HIL_Data();
-	
-	//Sim_Step_Data();
 
 	//input_to_buffer(u_s, 0.0, u_phi);
 	

@@ -7,14 +7,16 @@
 #include "PinsSetup.h"
 #include "pulse.h"
 
+#include "PID.h"
+
+#include "interrupts.h"
+
 void task1();
 
 //float read_ADC_voltage(int channel, int n);
 
 // initial time of test
 float t0;
-
-float ADC_read[3] = {0,0,0};
 
 void get_inputs_from_serial(float u[]);
 
@@ -86,13 +88,15 @@ void task1()
 	float wb, wf;
 	float u1, u2;
 	int pw1, pw2;
-	int w1, w2;	
+	int w1, w2;
+  float r;	
 	float t;
 
 	const int   PW_MAX = 2000, PW_0 = 1500, PW_MIN = 1000;
 	const float wmax = 810.0; // maximum back wheel speed (rad/s)	
 	const float V_bat = 12.0; // lipo battery voltage
 	const float V_bat_inv = 1/V_bat;	
+  const float Rw = 3.2e-2;  //Tire size
 
 	// read clock time (s)
 	t = micros()*1.0e-6 - t0;
@@ -123,23 +127,40 @@ void task1()
 	wf = (y2 - 2.5) * 0.4 * wmax;
 	// calculate inputs
 
-  /*
+  float tol = 1.0e-10;
+  r = (wb*Rw - wf*Rw) / (fabs(wf*Rw) + tol);
+  if (r > 10) r = 10;
+  if (r < -10) r = 0;
+
+  
+  
 	// step input for u1 at t = 5s and down to zero at t = 10s
+  /*
 	if(t > 20) {
 		u1 = 0.0;
-    u2 = 0;
+    //u2 = 0;
 	} else {
 		u1 = 12.0;
-    u2 = 0;
-	}	
-	*/
+    //u2 = 0;
+	}
+  */
   
-  float u[3+1];
-  get_inputs_from_serial(u);
-  u1 = u[1];
-  u2 = 0;
-  
-  
+ double velocity_target = 0;
+
+ //if (t > 1) velocity_target = 10.00;
+ //if (t > 10) velocity_target = 0.00;
+
+ speed_PID(velocity_target, wf, Rw, u1, V_bat, t, 0.003);
+ brake_PID(u1, V_bat, r, wf*Rw, wb, wf, velocity_target, t, 0.003);
+ traction_PID(u1, V_bat, r, wf*Rw, wb, wf, velocity_target, t, 0.003);
+
+ 
+ float u[3+1];
+ get_inputs_from_serial(u);
+ u1 = u[1];
+ u2 = 0;
+ 
+
 	// note the maximum input u1 is V_bat (12V)
 	// anything more than 12V or less than -12V
 	// will have no effect on the simulator
@@ -184,7 +205,13 @@ void task1()
 	Serial.print(",");
 
 	Serial.print(y3);
-	Serial.print(",");	
+	Serial.print(",");
+
+  //Serial.print(r);
+  //Serial.print(",");  
+
+  //Serial.print(wf*Rw);
+  //Serial.print(",");
   
 	Serial.print(u1);
 	Serial.print(",");	
@@ -198,46 +225,6 @@ void task1()
 	Serial.print(wf);
 	Serial.print("\n");	
 	 
-  /*
-  Serial.print(t);
-  Serial.print(",");
-
-  Serial.print(0.000);
-  Serial.print(",");
-
-  Serial.print(0.000);
-  Serial.print(",");
-
-  Serial.print(0.000);
-  Serial.print(",");
-
-  Serial.print(0.000);
-  Serial.print(",");
-
-  Serial.print(0.000);
-  Serial.print(",");
-
-  Serial.print(u1);
-  Serial.print(",");  
-
-  Serial.print(u2);
-  Serial.print(",");  
-  
-  Serial.print(wb);
-  Serial.print(",");    
-  
-  Serial.print(wf);
-  Serial.print("\n"); 
-
-  Serial.print(y1);
-  Serial.print(",");
-  
-  Serial.print(y2);
-  Serial.print(",");
-
-  Serial.print(y3);
-  Serial.print("\n");  
-  */
 	delay(30);
 }
 
@@ -275,80 +262,6 @@ void loop()
 {
 	// not used
 }
-
-ISR(TIMER1_COMPA_vect)
-{
-  static float t = 0.0, dt = 0.0, tp = 0.0;
-
-  t = micros()*1.0e-6 - t0;
-
-  dt = t - tp;
-  tp = t; // save previous time
-
-  /*
-  Serial.print("\nt(arduino) = ");
-  Serial.print(t);
-  
-  Serial.print("\tdt = ");
-  Serial.print(dt,6);
-  */
-
-  z1_HIGH();
-  delayMicroseconds(z1);
-  z1_LOW();
-
-  z2_HIGH();
-  delayMicroseconds(z2);
-  z2_LOW();
-  
-}
-
-ISR(ADC_vect)
-{
-  static double adc1;
-  static int i = 0;
-  int N = 200;
-  float N_inv = 1.0/N;
-  static int index = 0;
-  
-  float voltage;
-  const float ADC_to_V = 1.0/1023.0*5;
-  
-  // read the ADC (10-bits) // 0 - 1023
-  adc1 += ADC;
-  
-  i++;
-  if(i > N)
-  {
-    adc1 = adc1*N_inv;
-    voltage = adc1 * ADC_to_V;
-    ADC_read[index] = voltage;
-    i = 0;
-    adc1 = 0;
-  
-    index++;
-    ADMUX+=2;
-  }
-  
-  if(index > 2)
-  {
-    index = 0;
-    ADMUX = 0;
-    ADMUX |= BIT(MUX0);
-    ADMUX |= BIT(REFS0);
-  }
-
-  ADCSRA |= BIT(ADSC); // start new ADC conversion to avoid 
-  /*
-  Serial.print("ADC1 = ");
-  Serial.print(ADC_read[0]);
-  Serial.print("\tADC2 = ");
-  Serial.print(ADC_read[1]);
-  Serial.print("\tADC3 = ");
-  Serial.println(ADC_read[2]);
-  */
-}
-
 
 void get_inputs_from_serial(float u[])
    {

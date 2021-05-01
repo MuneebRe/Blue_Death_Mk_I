@@ -10,7 +10,7 @@ close ALL;
 
 temp = importdata('output.txt', ',', 1);
 A = temp.data;
-delete temp;
+%delete temp;
 
 %A = load('output.txt');
 
@@ -27,6 +27,7 @@ y2 = A(:,k); k = k + 1;
 y3 = A(:,k); k = k + 1;
 
 u1 = A(:,k); k = k + 1;
+u2 = A(:,k); k = k + 1;
 
 wb = A(:,k); k = k + 1;
 wf = A(:,k); k = k + 1;
@@ -51,6 +52,11 @@ xlabel('time (s)');
 figure(k); k = k + 1;
 plot(t,u1);
 ylabel('u1, motor control input voltage (V)');
+xlabel('time (s)');
+
+figure(k); k = k + 1;
+plot(t,u2);
+ylabel('u2, motor control input voltage (V)');
 xlabel('time (s)');
 
 figure(k); k = k + 1;

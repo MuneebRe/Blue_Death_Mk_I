@@ -1,2 +1,21 @@
 
 *.opendb
+car_simulator_1.7/car_simulator_1.7/car_simulator/.vs/DirectXTKSimpleSample/v16/.suo
+*.db
+*.ipch
+*.obj
+*.tlog
+*.manifest
+*.exp
+*.log
+*.rc
+*.res
+*.obj
+*.pdb
+*.ilk
+*.lib
+*.recipe
+*.txt
+Serial/.vs/program/v16/.suo
+*.obj
+*.exe

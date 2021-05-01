@@ -168,7 +168,7 @@ int main()
 
 void Serial_to_Sim()
 {
-	const int nb_inputs = 10;	//If using sim_step, use 10. If using HIL, use 8.
+	const int nb_inputs = 8;	//If using sim_step, use 10. If using HIL, use 8.
 
 	const int str_limit = 15;
 	const int str_MAX = 120;
