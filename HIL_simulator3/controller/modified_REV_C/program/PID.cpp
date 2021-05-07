@@ -4,9 +4,13 @@
   #include "WProgram.h"
 #endif
 
-const float velocity_target_tol = 1.5;
+bool acceleration_trigger = 0;
+float plot_r_target = 0;
+float plot_velocity_target = 0;
 
-void speed_PID(float target_vf, float wf, float Rw, float& u_s, float us_max, float t, float interval)
+const float velocity_target_tol = 2.0;
+
+void speed_PID(bool is_enable, float target_vf, float wf, float Rw, float& u_s, float us_max, float t, float interval)
 {
   static double time1 = 0;
   static double time2 = 0.1;
@@ -33,22 +37,26 @@ void speed_PID(float target_vf, float wf, float Rw, float& u_s, float us_max, fl
   error = (target_vf*2 - wf*Rw);
   error_dot = (error - old_error) / time_delta;
   int_error = int_error + error * time_delta;
-  u_s = (kp_PID * error + ki_PID * int_error + kd_PID * error_dot);
+  if (is_enable == 1) u_s = (kp_PID * error + ki_PID * int_error + kd_PID * error_dot);
   u_s = u_s * kc;
 
   if (u_s > us_max) u_s = us_max;
   if (u_s < -us_max) u_s = -0;
 
   old_error = error;
+
+  plot_velocity_target = target_vf;
 }
 
-void traction_PID(float& u_s, float us_max, float r, float vf, float wb, float wf, float velocity_target, float t, float interval)
+void traction_PID(bool is_enable, float& u_s, float us_max, float r, float vf, float wb, float wf, float velocity_target, float t, float interval)
 {
-  static bool acceleration_trigger = 0;
+  acceleration_trigger = 0;
 
   if (fabs(wb - wf) < velocity_target_tol && velocity_target > vf) acceleration_trigger = 1;
 
   if (fabs(velocity_target - vf) < velocity_target_tol) acceleration_trigger = 0;
+
+  if (vf < velocity_target && abs(velocity_target - vf) > velocity_target_tol && acceleration_trigger == 0) acceleration_trigger = 1;
 
   if (acceleration_trigger != 1) return;
 
@@ -69,7 +77,7 @@ void traction_PID(float& u_s, float us_max, float r, float vf, float wb, float w
   static double error_dot = 0;
   static double int_error = 0;
 
-  double kp_PID = 300;
+  double kp_PID = 30;
   double kd_PID = 0.6;
   double ki_PID = 30;
 
@@ -84,14 +92,14 @@ void traction_PID(float& u_s, float us_max, float r, float vf, float wb, float w
 
   old_error = error;
 
-  u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
+  if (is_enable == 1) u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
 
 
   if (u_s > us_max) u_s = us_max;
   if (u_s < 0) u_s = 0;
 }
 
-void brake_PID(float& u_s, float us_max, float r, float vf, float wb, float wf, float velocity_target, float t, float interval)
+void brake_PID(bool is_enable, float& u_s, float us_max, float r, float vf, float wb, float wf, float velocity_target, float t, float interval)
 {
   static bool deceleration_trigger = 0;
 
@@ -99,6 +107,12 @@ void brake_PID(float& u_s, float us_max, float r, float vf, float wb, float wf, 
 
   if (fabs(velocity_target - vf) < velocity_target_tol) deceleration_trigger = 0;
 
+  if (vf > velocity_target && abs(velocity_target - vf) > velocity_target_tol && deceleration_trigger == 0) deceleration_trigger = 1;
+
+  if (acceleration_trigger == 1 && deceleration_trigger == 0) plot_r_target = 0.2;
+  if (acceleration_trigger == 0 && deceleration_trigger == 1) plot_r_target = -0.2;
+  if (acceleration_trigger == 0 && deceleration_trigger == 0) plot_r_target = 0;
+  
   if (deceleration_trigger != 1) return;
 
   static double time1 = 0;
@@ -115,9 +129,9 @@ void brake_PID(float& u_s, float us_max, float r, float vf, float wb, float wf, 
   static double error_dot = 0;
   static double int_error = 0;
 
-  double kp_PID = 1300;
-  double kd_PID = 30;
-  double ki_PID = 0;
+  double kp_PID = 900;
+  double kd_PID = 2;
+  double ki_PID = 20;
 
   double desired_r = -0.2;
 
@@ -132,7 +146,7 @@ void brake_PID(float& u_s, float us_max, float r, float vf, float wb, float wf, 
   old_error = error;
 
   //if(r > desired_r) u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
-  u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
+  if (is_enable == 1) u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
 
   //if (r > 0.6) u_s = 0;
 

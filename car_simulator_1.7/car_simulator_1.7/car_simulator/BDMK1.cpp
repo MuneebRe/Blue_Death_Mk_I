@@ -1119,6 +1119,8 @@ void BDMK1::hide_shadows(int arrx[], int arry[], Camera& view, double theta_inde
 
 void BDMK1::VFF_control(bool feature_state, double& u_s, double us_max, double& phi, double phi_max, double t, double interval)
 {
+	//Muneeb's Version
+
 	//ofstream fout;
 	//fout.open("VFF_debug.txt");
 
@@ -1162,6 +1164,7 @@ void BDMK1::VFF_control(bool feature_state, double& u_s, double us_max, double& 
 
 	old_error = error;
 
+	plot_VFF_theta_delta = error;
 
 	if (u_s > us_max) u_s = us_max;
 	if (u_s < -us_max) u_s = -us_max;
@@ -1171,14 +1174,17 @@ void BDMK1::VFF_control(bool feature_state, double& u_s, double us_max, double& 
 
 }
 
-void BDMK1::traction_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval)
+void BDMK1::traction_PID(bool is_enable, double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval)
 {
-	static bool acceleration_trigger = 0;
-
+	//Muneeb's Version
+	//acceleration_trigger = 0;
+	
 	if (abs(wb - wf) < velocity_target_tol && velocity_target > vf) acceleration_trigger = 1;
 
 	if (abs(velocity_target - vf) < velocity_target_tol) acceleration_trigger = 0;
 
+	if (vf < velocity_target && abs(velocity_target - vf) > velocity_target_tol && acceleration_trigger == 0) acceleration_trigger = 1;
+	
 	if (acceleration_trigger != 1) return;
 
 	static double time1 = 0;
@@ -1210,23 +1216,32 @@ void BDMK1::traction_PID(double& u_s, double us_max, double r, double vf, double
 
 	old_error = error;
 
-	u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
+	if (is_enable == 1) u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
 
 
 	if (u_s > us_max) u_s = us_max;
 	if (u_s < 0) u_s = 0;
 
 	
-	
 }
 
-void BDMK1::brake_PID(double&u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval)
+void BDMK1::brake_PID(bool is_enable, double&u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval)
 {
+	//Muneeb's Version
+
 	static bool deceleration_trigger = 0;
 
 	if (abs(wb - wf) < velocity_target_tol && velocity_target < vf)  deceleration_trigger = 1;
 
 	if (abs(velocity_target - vf) < velocity_target_tol) deceleration_trigger = 0;
+
+	if (vf > velocity_target && abs(velocity_target - vf) > velocity_target_tol && deceleration_trigger == 0) deceleration_trigger = 1;
+
+	
+	if (acceleration_trigger == 1 && deceleration_trigger == 0) plot_r_target = 0.2;
+	if (acceleration_trigger == 0 && deceleration_trigger == 1) plot_r_target = -0.2;
+	if (acceleration_trigger == 0 && deceleration_trigger == 0) plot_r_target = 0;
+	
 
 	if (deceleration_trigger != 1) return;
 
@@ -1247,10 +1262,10 @@ void BDMK1::brake_PID(double&u_s, double us_max, double r, double vf, double wb,
 	double kd_PID = 30;
 	double ki_PID = 0;
 
-	double desired_r = -0.2;
-
 	double desired_u_s = u_s;
 	static double u_s_old = 0;
+
+	double desired_r = -0.2;
 
 	error = (desired_r - r);
 	//error = (desired_u_s - u_s_old);
@@ -1260,7 +1275,7 @@ void BDMK1::brake_PID(double&u_s, double us_max, double r, double vf, double wb,
 	old_error = error;
 
 	//if(r > desired_r) u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
-	u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
+	if (is_enable == 1) u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
 
 	//if (r > 0.6) u_s = 0;
 
@@ -1269,10 +1284,14 @@ void BDMK1::brake_PID(double&u_s, double us_max, double r, double vf, double wb,
 	if (u_s > us_max) u_s = us_max;
 	if (u_s < 0) u_s = 0;
 
+
+
+
 }
 
-void BDMK1::speed_PID(double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval)
+void BDMK1::speed_PID(bool is_enable, double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval)
 {
+	//Muneeb's Version
 	static double time1 = 0;
 	static double time2 = 0.1;
 	double time_delta;
@@ -1297,13 +1316,15 @@ void BDMK1::speed_PID(double target_vf, double wf, double Rw, double& u_s, doubl
 	error = (target_vf*2 - wf*Rw);
 	error_dot = (error - old_error) / time_delta;
 	int_error = int_error + error * time_delta;
-	u_s = (kp_PID * error + ki_PID * int_error + kd_PID * error_dot);
+	if (is_enable == 1)u_s = (kp_PID * error + ki_PID * int_error + kd_PID * error_dot);
 	u_s = u_s * kc;
 
 	if (u_s > us_max) u_s = us_max;
 	if (u_s < -us_max) u_s = -0;
 
 	old_error = error;
+
+	plot_velocity_target = target_vf;
 }
 
 BDMK1::~BDMK1()

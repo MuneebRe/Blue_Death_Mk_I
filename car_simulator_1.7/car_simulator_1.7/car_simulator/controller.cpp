@@ -48,6 +48,10 @@ extern robot robot1;
 
 extern bool VFF_Feature;
 
+double plot_velocity_target = 0;
+double plot_r_target = 0;
+double plot_VFF_theta_delta = 0;
+
 // make global since u_phi is needed by the graphics program
 // to draw the angle of the front wheels when they steer
 double u_s = 0.0, u_phi = 0.0;	
@@ -187,51 +191,42 @@ void calculate_control_inputs()
 		if( u_phi > -phi_max ) u_phi -= dphi;	
 	}
 
-	/*
-	if (KEY('B') || robot1.brake_active == true) {
-		 //u_s = 0;
-		 //robot1.brake_active = true;
-		 //robot1.start_acc = true;
-	}
-	*/
-
-	/*
-	if (t < 20)
-	{
-		u_s = 12.0;
-	}
-	else
-	{
-		u_s = 12.0;
-	}
-	*/
-
-	VFF_Feature = 0;
-
-	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
 
 	double velocity_target = 0;
 
-	if (t > 1) velocity_target = 20;
-	if (t > 10) velocity_target = 0.00;
-
-	//Sim_Step_Data();
-	//HIL_Data();
-
-	bdmk1.speed_PID(velocity_target, wf, robot1.Rw, u_s, us_max, t, 0.003);
-
-	bdmk1.traction_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+	if (t >  1) velocity_target = 20.00;
+	if (t > 100) velocity_target = 0;
 	
-	bdmk1.brake_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
 
-	//HIL_Data();
+	//Sim_Step_Data();	//Can be used to make the car run how the sim_step is simulating
+	//HIL_Data();		//Can be used to make the car run how the HIL is simulating
 
-	// set inputs in the robot modelf
+	//Muneeb's Version
+	VFF_Feature = 0; //Can be slow since Vision processing takes alot more time than dt = 0.001s
+	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
+
+	//Muneeb's Version
+	bool speed_PID_switch = 1;
+	bdmk1.speed_PID(speed_PID_switch, velocity_target, wf, robot1.Rw, u_s, us_max, t, 0.003);
+
+	//Muneeb's Version
+	bool traction_PID_switch = 1;
+	bdmk1.traction_PID(traction_PID_switch, u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+
+	//Muneeb's Version
+	bool brake_PID_switch = 1;
+	bdmk1.brake_PID(brake_PID_switch, u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+
+	//input_to_buffer(u_s, 0.0, u_phi);	//Discontinued, can use car_simulator
+										//as the controller for the controller on the HIL.
+										//Makes it possible to control in Real-Time, though with a bit of lag.
+
+
+
+	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
 	robot1.u[3] = u_phi; // steering angle phi (rad)
-
-	//input_to_buffer(u_s, 0.0, u_phi);
 	
 	// file output
 	// note: too much output might slow down the controller and simulation

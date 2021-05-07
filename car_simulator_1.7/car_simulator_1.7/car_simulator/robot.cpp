@@ -16,7 +16,13 @@ using namespace std;
 // sign macro function
 #define SIGN(a) ( (a) >= 0.0 ? 1.0 : -1.0 )
 
+extern double plot_velocity_target;
+extern double plot_r_target;
+extern double plot_VFF_theta_delta;
+
 ofstream fout("output.txt");
+
+
 
 bool HIL_wb_wf = 0;
 
@@ -249,7 +255,7 @@ void robot::sim_step(double dt, robot robot1)
 	// but calculating xd will normally be different
 	for(i=1;i<=NS;i++) x[i] = x[i] + xd[i]*dt; 
 
-	fout << robot1.t << "," << robot1.u[1] << ","<< robot1.x[7] << "," << robot1.x[8] << "," << wb << "," << wf << "," << y[3] << "," << x[4] << "," << u[1] << "," << mu << "\n"; // Print the y[1] and y[2] (wb and wf)
+	fout << robot1.t << "," << robot1.u[1] << ","<< robot1.x[7] << "," << robot1.x[8] << "," << wb << "," << wf << "," << y[3] << "," << x[4] << "," << mu << ","  << plot_velocity_target << "," << plot_r_target << "," << plot_VFF_theta_delta << "," << x[1] << "\n";
 		
 	t = t + dt; // increment time		
 }

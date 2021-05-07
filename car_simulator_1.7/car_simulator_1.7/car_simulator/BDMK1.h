@@ -12,6 +12,10 @@
 
 const double velocity_target_tol = 0.5;
 
+extern double plot_velocity_target;
+extern double plot_r_target;
+extern double plot_VFF_theta_delta;
+
 class BDMK1
 {
 public:
@@ -61,7 +65,10 @@ private:
 	double VFF_theta;
 	double VFF_mag;
 
+	bool acceleration_trigger;
+
 public:
+	//Muneeb's Functions
 	BDMK1();
 	//void init_neural();
 	void manual_set(int& pw_l, int& pw_r, int& pw_laser, int& laser);
@@ -95,9 +102,9 @@ public:
 	void VFF_section_modifier(double theta_index, double offset, double range, int& radius_limit, int limit_val, double& multiplier, double multiplier_val);
 
 	void VFF_control(bool feature_state, double& u_s, double us_max, double& phi, double phi_max, double t, double interval);
-	void speed_PID(double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval);
-	void traction_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
-	void brake_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
+	void speed_PID(bool is_enable, double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval);
+	void traction_PID(bool is_enable, double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
+	void brake_PID(bool is_enable, double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
 
 	~BDMK1();
 };

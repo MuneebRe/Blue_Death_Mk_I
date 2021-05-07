@@ -20,6 +20,9 @@ float t0;
 
 void get_inputs_from_serial(float u[]);
 
+extern float plot_r_target ;
+extern float plot_velocity_target;
+
 void setup() 
 {	
 	// Serial startup sequence below ensures reliable / predictable startup /////
@@ -147,19 +150,19 @@ void task1()
   
  double velocity_target = 0;
 
- //if (t > 1) velocity_target = 10.00;
- //if (t > 10) velocity_target = 0.00;
+ if (t > 1) velocity_target = 20.00;
+ if (t > 10) velocity_target = 0.00;
 
- speed_PID(velocity_target, wf, Rw, u1, V_bat, t, 0.003);
- brake_PID(u1, V_bat, r, wf*Rw, wb, wf, velocity_target, t, 0.003);
- traction_PID(u1, V_bat, r, wf*Rw, wb, wf, velocity_target, t, 0.003);
+ speed_PID(1,velocity_target, wf, Rw, u1, V_bat, t, 0.003);
+ brake_PID(0,u1, V_bat, r, wf*Rw, wb, wf, velocity_target, t, 0.003);
+ traction_PID(0,u1, V_bat, r, wf*Rw, wb, wf, velocity_target, t, 0.003);
 
- 
+ /*
  float u[3+1];
  get_inputs_from_serial(u);
  u1 = u[1];
  u2 = 0;
- 
+ */
 
 	// note the maximum input u1 is V_bat (12V)
 	// anything more than 12V or less than -12V
@@ -220,10 +223,25 @@ void task1()
   Serial.print(",");  
 	
 	Serial.print(wb);
-	Serial.print(",");		
+	Serial.print(",");
 	
-	Serial.print(wf);
-	Serial.print("\n");	
+	//Serial.print(wf);
+	//Serial.print("\n");	
+
+  Serial.print(wf);
+  Serial.print(","); 
+
+  Serial.print(r);
+  Serial.print(","); 
+
+  Serial.print(wf*Rw);
+  Serial.print(",");
+
+  Serial.print(plot_r_target);
+  Serial.print(",");
+
+  Serial.print(plot_velocity_target);
+  Serial.print("\n");
 	 
 	delay(30);
 }
