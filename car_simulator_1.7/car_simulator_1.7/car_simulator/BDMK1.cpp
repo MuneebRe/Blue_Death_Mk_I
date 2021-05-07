@@ -1306,6 +1306,142 @@ void BDMK1::speed_PID(double target_vf, double wf, double Rw, double& u_s, doubl
 	old_error = error;
 }
 
+void BDMK1::traction_PID_2(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval)
+{
+
+
+	static double time1 = 0;
+	static double time2 = 0.1;
+	double time_delta;
+	//time2 = high_resolution_time();
+	time2 = t;
+	time_delta = time2 - time1;
+	if (time_delta < interval) return;
+	time1 = time2;
+
+	static double error = 0;
+	static double old_error = 0;
+	static double error_dot = 0;
+	static double int_error = 0;
+
+	double kp_PID = 300;
+	double kd_PID = 0.6;
+	double ki_PID = 30;
+
+	double desired_r = 0.2;
+
+	double desired_u_s = u_s;
+	static double u_s_old = 0;
+
+	if (r > 0 && brake_active == false && start_acc == false)
+	{
+
+		error = velocity_target - (wb * Rw); //Find error between the forward velocity and rear wheel velocity
+		error_dot = (error - old_error) / time_delta; //Find the derivative error
+		int_error = int_error + error * time_delta; // Find the integral  error
+		u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors with weightings
+		old_error = error;
+		if (u_s >=us_max)u_s = us_max; // Max voltage will be equal to the max value determined by the user
+		if (u_s <= 0)u_s = 0; //Lower limit
+
+	}
+
+
+}
+
+void BDMK1::acc(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval)
+{
+
+
+	static double time1 = 0;
+	static double time2 = 0.1;
+	double time_delta;
+	//time2 = high_resolution_time();
+	time2 = t;
+	time_delta = time2 - time1;
+	if (time_delta < interval) return;
+	time1 = time2;
+
+	static double error = 0;
+	static double old_error = 0;
+	static double error_dot = 0;
+	static double int_error = 0;
+
+	double kp_PID = 25;
+	double kd_PID = 0;
+	double ki_PID = 0;
+
+	double desired_r = 0.2;
+
+	double desired_u_s = u_s;
+	static double u_s_old = 0;
+
+
+
+	if (start_acc == true && r > 0.2 && brake_active == false)
+	{
+
+		error = velocity_target - (wb * Rw); //Find error between the forward velocity and rear wheel velocity
+		error_dot = (error - old_error) / time_delta; //Find the derivative error
+		int_error = int_error + error * time_delta; // Find the integral  error
+		u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
+		old_error = error;
+		if (u_s >= us_max)u_s = us_max; // Max voltage will be equal to the max value determined by the user
+		if (u_s <= 0)u_s = 0; //Lower limit
+		if (vf > velocity_target) start_acc = false;
+
+	}
+
+
+
+}
+
+void BDMK1::brakes(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval)
+{
+
+
+	static double time1 = 0;
+	static double time2 = 0.1;
+	double time_delta;
+	//time2 = high_resolution_time();
+	time2 = t;
+	time_delta = time2 - time1;
+	if (time_delta < interval) return;
+	time1 = time2;
+
+	static double error = 0;
+	static double old_error = 0;
+	static double error_dot = 0;
+	static double int_error = 0;
+
+	double kp_PID = 10;
+	double kd_PID = 10;
+	double ki_PID = 10;
+
+	double desired_r = 0.2;
+
+	double desired_u_s = u_s;
+	static double u_s_old = 0;
+
+	if (velocity_target = 0) {
+		
+		error = 0 - velocity_target; //Find error between the forward velocity and rear wheel velocity
+		error_dot = (error - old_error) / time_delta; //Find the derivative error
+		int_error = int_error + error * time_delta; // Find the integral  error
+		u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot; // Sum all errors
+		old_error = error;
+		if (u_s >= us_max) u_s = us_max;
+		if (u_s <= 0) u_s = 0;
+		if (velocity_target > 5) u_s = 0;
+		
+		//u_s = 0;
+		brake_active = true;
+	}
+
+
+}
+
+
 BDMK1::~BDMK1()
 {
 

@@ -98,6 +98,10 @@ public:
 	void speed_PID(double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval);
 	void traction_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
 	void brake_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
+	void traction_PID_2(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval);
+	void acc(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval);
+	void brakes(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval);
+
 
 	~BDMK1();
 };

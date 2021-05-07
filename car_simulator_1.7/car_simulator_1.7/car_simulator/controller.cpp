@@ -144,6 +144,10 @@ void calculate_control_inputs()
 
 	double t = robot1.t; // simulation time
 
+	bool brake_active = false;
+	bool start_acc = true;
+	double Rw = 3.2e-2;
+
 	// max steering angle of typical car 
 	double phi_max = 35.0/180*3.14159;
 	
@@ -219,10 +223,14 @@ void calculate_control_inputs()
 	//HIL_Data();
 
 	bdmk1.speed_PID(velocity_target, wf, robot1.Rw, u_s, us_max, t, 0.003);
-
-	bdmk1.traction_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
 	
-	bdmk1.brake_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+	//bdmk1.traction_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+	
+	bdmk1.acc(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+	bdmk1.traction_PID_2(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+
+	//bdmk1.brake_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+	bdmk1.brakes(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
 
 	//HIL_Data();
 
