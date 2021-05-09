@@ -1189,7 +1189,7 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 	if (time_delta < interval) return;
 	time1 = time2;
 
-	double kp_PID = 4.00;
+	double kp_PID = 6.00;
 	double kd_PID = 1.00;
 	double ki_PID = 0.50;
 

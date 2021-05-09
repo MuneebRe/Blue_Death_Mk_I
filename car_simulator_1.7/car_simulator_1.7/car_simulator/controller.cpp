@@ -203,12 +203,17 @@ void calculate_control_inputs()
 	//Sim_Step_Data();	//Can be used to make the car run how the sim_step is simulating
 	//HIL_Data();		//Can be used to make the car run how the HIL is simulating
 
-	VFF_Feature = 0;
-	steer_feature = 1;
+	//Set VFF_Feature to 1 / steer_feature to 0 for steering control using graphics. 
+	//Set VFF_Feature to 0 / steer_feature to 1 for steering control using linear algebra
 
+	VFF_Feature = 1; //Can be slow since Vision processing takes alot more time than dt = 0.001s
+	
 	//Muneeb's Version
-	VFF_Feature = 0; //Can be slow since Vision processing takes alot more time than dt = 0.001s
 	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
+
+	steer_feature = 0;
+
+	//Gurvir's Version
 	bdmk1.steer_control(steer_feature, u_s, us_max, u_phi, phi_max, t, 0.003, xc, yc, draw);
 
 	//Muneeb's Version
