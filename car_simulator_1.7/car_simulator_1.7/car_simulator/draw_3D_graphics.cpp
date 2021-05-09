@@ -283,10 +283,10 @@ void draw_3D_graphics()
 			x = x / pixels_per_m;
 			y = y / pixels_per_m;
 			theta = atan2(yd, xd);
-			draw_box(x, y, -0.35, theta, 0, 0, 2, 2, 0.025, 255, 255, 255, 1);
-			//draw_box(draw[0], draw[1], -0.35, yaw, 0, 0, 2, 2, 0.025, 255, 255, 0, 1);
+			//draw_box(x, y, -0.35, theta, 0, 0, 2, 2, 0.025, 255, 255, 255, 1);
+			draw_box(draw[0], draw[1], -0.35, yaw, 0, 0, 2, 2, 0.025, 255, 255, 0, 1);
 			draw_box(draw[2], draw[3], 0, draw[6], 0, 0, 1, 1, 0, 0, 255, 0, 1);
-			//draw_box(draw[4], draw[5], 0, draw[7], 0, 0, 1, 1, 0.0, 255, 0, 0, 1);
+			draw_box(draw[4], draw[5], 0, draw[7], 0, 0, 1, 1, 0.0, 255, 0, 0, 1);
 			if (steer_init == 0) {
 				bdmk1.steer_x[bdmk1.steer_index] = x;
 				bdmk1.steer_y[bdmk1.steer_index] = y;
@@ -294,12 +294,11 @@ void draw_3D_graphics()
 				bdmk1.steer_index += 1;
 			}
 		}
-		steer_init = 0;
 		//fout1 << "\n x: " << bdmk1.x_index; THIS CONFIRMS ARRAY IS BELOW 100! 
 		//fout1 << "\n y: " << bdmk1.y_index;
 		//fout1 << robot1.x[7] << endl;
 	}
-
+	steer_init = 0;
 		// draw car
 		draw_car(x, y, z, yaw, pitch, roll, th_front, th_back, th_steer);
 

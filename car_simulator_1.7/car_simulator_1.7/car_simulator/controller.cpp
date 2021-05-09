@@ -217,7 +217,7 @@ void calculate_control_inputs()
 	double velocity_target = 0;
 
 	if (t > 1) velocity_target = 20;
-	if (t > 20) velocity_target = 0.00;
+	if (t > 30) velocity_target = 0.00;
 
 	//Sim_Step_Data();
 	//HIL_Data();
