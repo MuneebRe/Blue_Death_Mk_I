@@ -1175,8 +1175,7 @@ void BDMK1::VFF_control(bool feature_state, double& u_s, double us_max, double& 
 void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double& phi, double phi_max, double t, double interval, double xc, double yc, double draw[8])
 {
 	if (feature_state == 0) return;
-	//ofstream fout2;
-	//fout2.open("steer_debug.txt");
+
 	static int init = 0;
 	static double time1 = 0;
 	static double time2 = 0.1;
@@ -1186,9 +1185,9 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 	if (time_delta < interval) return;
 	time1 = time2;
 
-	double kp_PID = 0.40;
-	double kd_PID = 0.10;
-	double ki_PID = 0.05;
+	double kp_PID = 4.00;
+	double kd_PID = 1.00;
+	double ki_PID = 0.50;
 
 	static double error = 0;
 	static double old_error = 0;
@@ -1198,7 +1197,7 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 	int loop_i = 5;
 	int loop_i2 = 20;
 	static int best_index = 10;
-	double closest_x=10000, closest_y=10000, current_x, current_y, current_x2, current_y2;
+	double current_x, current_y;
 	double current_mag, closest_mag = 10000;
 	double origin_x, origin_y; //This is where the car and spline vectors will both start from, to be able to perform other vector calculations.
 	double car_vector[2], curve_vector[2]; //element 0 is x, element 1 is y
@@ -1219,45 +1218,13 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 				closest_mag = current_mag;
 				best_index = loop_i;	//array element of the spline that is currently closest to the car
 			}
-
-			/*if (current_x < closest_x && current_y < closest_y) {
-				//If the point on the spline is the currently observed CLOSEST point to the car, we store it. We want to find the current closest spline point so we can do vector calculations
-				closest_x = current_x;
-				closest_y = current_y;
-				best_index = loop_i;	//array element of the spline that is currently closest to the car
-			}*/
 		}
 	}
-
-	/*if (init != 20) {
-		//init++;
-	}
-	else if (init == 20) {
-		for (loop_i2 = best_index; loop_i2 < best_index + 20; loop_i2++) {
-		//Calculate the difference in x and y position of the car to ALL the points on the spline.
-			current_x2 = abs((xc - steer_x[loop_i2]));
-			current_y2 = abs((yc - steer_y[loop_i2]));
-
-
-			if (current_x < closest_x && current_y < closest_y) {
-				//If the point on the spline is the currently observed CLOSEST point to the car, we store it. We want to find the current closest spline point so we can do vector calculations
-				closest_x = current_x;
-				closest_y = current_y;
-				best_index = loop_i2;	//array element of the spline that is currently closest to the car
-			}
-		}
-	}*/
-	
-
 	
 	//At this point, the best index is provided, this index is the x and y spline point closest to you. Take the spline point before it, and create vectors.
 
-
-	
 	origin_x = steer_x[best_index - 15];
 	origin_y = steer_y[best_index - 15];
-	
-	
 
 	//Car vector will be [x1, y1, z1] where z1 is 0, x1 = xc - origin_x, y1 = yc - origin_y
 	car_vector[0] = xc - origin_x;
@@ -1268,8 +1235,9 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 	//Cross product of both vectors -> Assuming z = 0 
 	//determininant |car_vector[0]		car_vector[1]  |
 	//				|curve_vector[0]	curve_vector[1]|
+
 	cross_product = (car_vector[0] * curve_vector[1]) - (car_vector[1] * curve_vector[0]); //car_vector X curve_vector --> If positive, car_vector is clockwise(to the right). Negative, car_vector is to the left.
-	//fout2 << cross_product << endl;
+
 	//At this point, a value of area is given to indicate if the car is to the left or right of the curve. 
 	//Either error is this cross product, or I will calculate distance of a point to the curve vector and make that the error to minimize. 
 
@@ -1291,15 +1259,6 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 	error_dot = (error - old_error) / time_delta;
 	int_error = int_error + error * time_delta;
 	phi = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
-	//phi = -0.03;
-
-	/*
-	if (cross_product < 0) {
-		phi = -0.2;
-	}
-	else if (cross_product > 0) {
-		phi = 0.2;
-	}*/
 
 	old_error = error;
 

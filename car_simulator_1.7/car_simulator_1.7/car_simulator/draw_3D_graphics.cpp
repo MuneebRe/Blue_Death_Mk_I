@@ -294,9 +294,6 @@ void draw_3D_graphics()
 				bdmk1.steer_index += 1;
 			}
 		}
-		//fout1 << "\n x: " << bdmk1.x_index; THIS CONFIRMS ARRAY IS BELOW 100! 
-		//fout1 << "\n y: " << bdmk1.y_index;
-		//fout1 << robot1.x[7] << endl;
 	}
 	steer_init = 0;
 		// draw car
