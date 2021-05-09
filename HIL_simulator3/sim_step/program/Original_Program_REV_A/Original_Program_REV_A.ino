@@ -30,7 +30,7 @@ void setup() { // note: setup is analogous to main not loop
 	// Serial startup sequence below ensures reliable / predictable startup /////
 	char ch;
 	
-	Serial.begin(2000000);
+	Serial.begin(9600);
 	
 	// wait until Serial Monitor or save_serial program is started
 	while( !Serial ) delay(1);

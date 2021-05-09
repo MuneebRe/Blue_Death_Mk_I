@@ -29,6 +29,7 @@
 #include "BDMK1.h"
 
 extern BDMK1 bdmk1;
+void speed_controller(double& v_req);
 
 using namespace std;
 
@@ -191,7 +192,7 @@ void calculate_control_inputs()
 		if( u_phi > -phi_max ) u_phi -= dphi;	
 	}
 
-
+	
 	double velocity_target = 0;
 
 	if (t >  1) velocity_target = 20.00;
@@ -221,8 +222,31 @@ void calculate_control_inputs()
 										//as the controller for the controller on the HIL.
 										//Makes it possible to control in Real-Time, though with a bit of lag.
 
-
-
+	//****Zihuan's version****
+	//This PID converts the desired car velocity by converting the desired speed to motor voltage
+	//Traction control was not enabled using this PID, it only controls the speed
+	//Disable the PID and the key input controls above to see the difference.
+	/*
+	double t_sim = robot1.t;
+	double v_forward;
+	if (t_sim < 15) {
+		v_forward = 20;
+		u_s = v_forward * 12.0 / 26.3;
+	}
+	if (t_sim > 15 && t_sim < 30) {
+		v_forward = 15;
+		u_s = v_forward * 12.0 / 26.3;
+	}
+	if (t_sim > 45 && t_sim < 60) {
+		v_forward = 10;
+		u_s = v_forward * 12.0 / 26.3;
+	}
+	if (t_sim > 60) {
+		v_forward = 18;
+		u_s = v_forward * 12.0 / 26.3;
+	}
+	speed_controller(u_s);
+	*/
 	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)
@@ -275,4 +299,31 @@ void reset_ICs()
 	robot1.y[3] = 0.0; // slip ratio r
 	robot1.y[4] = 0.0; // coefficient of tire friction mu
 	
+}
+
+void speed_controller(double& v_req) {
+	static double kp, ki, kd;//PID control gain parameter/
+	static double e_p;
+	double t1 = 0, dt; //initial time, time difference
+	static double tp = 0;//previous time
+	double u; //PID control output
+	static double err, err_p; //control error and previous error
+	double err_d = 0.0; //derivative of error
+	double err_i = 0.0; //integral of error
+	double v_car;
+	t1 = robot1.t; //Get real simulation time
+	v_car = robot1.x[4]; //Read the sensor / get output from the simualtion
+	dt = t1 - tp;
+	tp = t1; //save time for next call
+	kp = 10.0;
+	ki = 6.0;
+	kd = 1.5;
+	err = v_req - v_car;
+	err_d = (err - e_p) / dt;
+	e_p = err;
+	err_i = err_i + err_i * dt;
+	u = kp * err + ki * err_i + kd * err_d; //PID control input
+	if (u > 12) u = 12; //cap the maximum voltage
+	if (u < -12) u = -12;
+	robot1.u[1] = u; // Write the voltage to the control input
 }
