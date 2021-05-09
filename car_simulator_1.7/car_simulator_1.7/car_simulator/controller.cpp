@@ -47,6 +47,8 @@ double THETA_0 = 0.0;
 extern robot robot1;
 
 extern bool VFF_Feature;
+extern bool steer_feature;
+double draw[8];
 
 double plot_velocity_target = 0;
 double plot_r_target = 0;
@@ -201,9 +203,13 @@ void calculate_control_inputs()
 	//Sim_Step_Data();	//Can be used to make the car run how the sim_step is simulating
 	//HIL_Data();		//Can be used to make the car run how the HIL is simulating
 
+	VFF_Feature = 0;
+	steer_feature = 1;
+
 	//Muneeb's Version
 	VFF_Feature = 0; //Can be slow since Vision processing takes alot more time than dt = 0.001s
 	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
+	bdmk1.steer_control(steer_feature, u_s, us_max, u_phi, phi_max, t, 0.003, xc, yc, draw);
 
 	//Muneeb's Version
 	bool speed_PID_switch = 1;
