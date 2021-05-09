@@ -1171,6 +1171,135 @@ void BDMK1::VFF_control(bool feature_state, double& u_s, double us_max, double& 
 
 }
 
+
+void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double& phi, double phi_max, double t, double interval, double xc, double yc, double draw[8])
+{
+	//if (feature_state == 0) return;
+	//ofstream fout2;
+	//fout2.open("steer_debug.txt");
+	static int init = 0;
+	static double time1 = 0;
+	static double time2 = 0.1;
+	double time_delta;
+	time2 = t;
+	time_delta = time2 - time1;
+	if (time_delta < interval) return;
+	time1 = time2;
+
+	double kp_PID = 50.00;
+	double kd_PID = 0.00;
+	double ki_PID = 0.00;
+
+	static double error = 0;
+	static double old_error = 0;
+	static double error_dot = 0;
+	static double int_error = 0;
+
+	int loop_i = 0;
+	static int best_index = 0;
+	double closest_x=10000, closest_y=10000, current_x, current_y;
+	double origin_x, origin_y; //This is where the car and spline vectors will both start from, to be able to perform other vector calculations.
+	double car_vector[2], curve_vector[2]; //element 0 is x, element 1 is y
+	double cross_product;	//since z = 0, this value will be the scalar, ie: magnitude of the area, normally this should be an array for 3D space vectors
+	double cross_product_mag; //negative result means car vector is left of the curve vector, positive means car vector is right of the curve vector
+	double curve_vector_mag;
+	double delta_distance;
+
+	if (init == 0) {
+		for (loop_i; loop_i < steer_index; loop_i++) {
+			//Calculate the difference in x and y position of the car to ALL the points on the spline.
+			current_x = abs((xc - steer_x[loop_i]));
+			current_y = abs((yc - steer_y[loop_i]));
+
+			if (current_x < closest_x && current_y < closest_y) {
+				//If the point on the spline is the currently observed CLOSEST point to the car, we store it. We want to find the current closest spline point so we can do vector calculations
+				closest_x = current_x;
+				closest_y = current_y;
+				best_index = loop_i;	//array element of the spline that is currently closest to the car
+			}
+		}
+	}
+
+		for (loop_i = best_index - 5; loop_i < best_index + 5; loop_i++) {
+			//Calculate the difference in x and y position of the car to ALL the points on the spline.
+			current_x = abs((xc - steer_x[loop_i]));
+			current_y = abs((yc - steer_y[loop_i]));
+
+			if (current_x < closest_x && current_y < closest_y) {
+				//If the point on the spline is the currently observed CLOSEST point to the car, we store it. We want to find the current closest spline point so we can do vector calculations
+				closest_x = current_x;
+				closest_y = current_y;
+				best_index = loop_i;	//array element of the spline that is currently closest to the car
+			}
+		}
+
+	
+	//At this point, the best index is provided, this index is the x and y spline point closest to you. Take the spline point before it, and create vectors.
+
+	if (best_index < 3) {
+		return;
+	}
+
+	if (best_index != 0) {
+		origin_x = steer_x[best_index - 5];
+		origin_y = steer_y[best_index - 5];
+	}
+	else {
+		return;
+	}
+
+	//Car vector will be [x1, y1, z1] where z1 is 0, x1 = xc - origin_x, y1 = yc - origin_y
+	car_vector[0] = xc - origin_x;
+	car_vector[1] = yc - origin_y;
+	//Curve vector will be [x1, y1, z1] where z1 is 0, x1 = steer_x[bestx_index] - origin_x, y1 = steer_y[besty_index] - origin_y
+	curve_vector[0] = steer_x[best_index] - origin_x;
+	curve_vector[1] = steer_y[best_index] - origin_y;
+	//Cross product of both vectors -> Assuming z = 0 
+	//determininant |car_vector[0]		car_vector[1]  |
+	//				|curve_vector[0]	curve_vector[1]|
+	cross_product = (car_vector[0] * curve_vector[1]) - (car_vector[1] * curve_vector[0]); //car_vector X curve_vector --> If positive, car_vector is clockwise(to the right). Negative, car_vector is to the left.
+	//fout2 << cross_product << endl;
+	//At this point, a value of area is given to indicate if the car is to the left or right of the curve. 
+	//Either error is this cross product, or I will calculate distance of a point to the curve vector and make that the error to minimize. 
+
+	//Draw boxes in draw_3D_graphics for testing
+	draw[0] = car_vector[0];
+	draw[1] = car_vector[1];
+	draw[2] = curve_vector[0];
+	draw[3] = curve_vector[1];
+	draw[4] = origin_x;
+	draw[5] = origin_y;
+	draw[6] = steer_theta[best_index];
+	draw[7] = steer_theta[best_index - 3];
+
+	//Distance between robot and spline curve is cross_prodcut/|curve_vector|
+	curve_vector_mag = pow((pow(curve_vector[0], 2) + pow(curve_vector[1], 2)), 0.5);
+	delta_distance = cross_product / curve_vector_mag;
+	
+	error = delta_distance;
+	error_dot = (error - old_error) / time_delta;
+	int_error = int_error + error * time_delta;
+	//phi = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
+	//phi = -0.03;
+
+	if (cross_product <= 0) {
+		phi = -0.2;
+	}
+	else if (cross_product > 0) {
+		phi = 0.2;
+	}
+
+	old_error = error;
+
+
+	if (u_s > us_max) u_s = us_max;
+	if (u_s < -us_max) u_s = -us_max;
+	//if (phi > phi_max) phi = phi_max;
+	//if (phi < -phi_max) phi = -phi_max;
+
+}
+
+
 void BDMK1::traction_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval)
 {
 	static bool acceleration_trigger = 0;
@@ -1210,7 +1339,7 @@ void BDMK1::traction_PID(double& u_s, double us_max, double r, double vf, double
 
 	old_error = error;
 
-	u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;;
+	u_s = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
 
 
 	if (u_s > us_max) u_s = us_max;

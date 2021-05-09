@@ -47,6 +47,8 @@ double THETA_0 = 0.0;
 extern robot robot1;
 
 extern bool VFF_Feature;
+extern bool steer_feature;
+double draw[8];
 
 // make global since u_phi is needed by the graphics program
 // to draw the angle of the front wheels when they steer
@@ -207,13 +209,15 @@ void calculate_control_inputs()
 	*/
 
 	VFF_Feature = 0;
+	steer_feature = 1;
 
 	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
+	bdmk1.steer_control(steer_feature, u_s, us_max, u_phi, phi_max, t, 0.003, xc, yc, draw);
 
 	double velocity_target = 0;
 
 	if (t > 1) velocity_target = 20;
-	if (t > 10) velocity_target = 0.00;
+	if (t > 20) velocity_target = 0.00;
 
 	//Sim_Step_Data();
 	//HIL_Data();

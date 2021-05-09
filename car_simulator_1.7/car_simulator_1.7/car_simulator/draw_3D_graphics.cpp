@@ -102,6 +102,8 @@ extern double X0_VIEW;
 extern double Y0_VIEW;
 extern double Z0_VIEW;
 extern double THETA_VIEW;
+extern double draw[8];
+static int steer_init = 0;
 
 using namespace std;
 
@@ -109,8 +111,10 @@ image b;
 Camera view(true, 0, WINDOW_WIDTH, WINDOW_HEIGHT, RGB_IMAGE, true, 1);
 BDMK1 bdmk1;
 bool VFF_Feature = 0;
+bool steer_feature = 0;
 
 static ofstream fout("timing.txt");
+//static ofstream fout1("gurvtesting.txt");
 
 extern double X0;
 extern double Y0;
@@ -198,7 +202,7 @@ void draw_3D_graphics()
 
 	// calculate control inputs
 	calculate_control_inputs();
-
+	
 	//bdmk1.VFF_control(robot1.u[1], robot1.u[3]);
 
 	// read clock time
@@ -230,55 +234,94 @@ void draw_3D_graphics()
 	
 	th_steer = u_phi;
 	
-	double pixels_per_m = 21.15; // scale of track images
-	double x_offset = -1690.5;
-	double s_begin = -4.00e2;// 3.7500000e+02; // begining of curve
-	//double s_end = 2.7275000e+04; // end of curve
-	double s_end = (2.7275000e+04 - s_begin) / 2.00000;
+	if (steer_feature == 0) {	//This will only occur if steering without VFF is disabled
 
-	for (double s = s_begin; s < s_end; s = s + 150)
-	{
-		double x, y, xd, yd, xdd, ydd, theta;
-		curve(s, x, y, xd, yd, xdd, ydd);
+		double pixels_per_m = 21.15; // scale of track images
+		double x_offset = -1690.5;
+		double s_begin = -4.00e2;// 3.7500000e+02; // begining of curve
+		//double s_end = 2.7275000e+04; // end of curve
+		double s_end = (2.7275000e+04 - s_begin) / 2.00000;
 
-		// adjust x offset between full and half track
-
-		x = x + x_offset;
-
-		// convert x and y to m
-		x = x / pixels_per_m;
-		y = y / pixels_per_m;
-		theta = atan2(yd, xd);
-
-		draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 0, 0, 0, 1);
-
-		//if (s == s_begin + 1500) draw_box(x, y + 19 , -0.35, theta, 0, 0, 10, 12, 0.025, 255, 255, 255, 1);
-
-		//draw_box(x, y, -0.34, theta, 0, 0, 3, 0.5, 0.025, 255, 255, 255, 1);
-	}
-
-	// draw car
-	draw_car(x,y,z,yaw,pitch,roll,th_front,th_back,th_steer);
-
-	global_yaw = yaw;
-
-	if (VFF_Feature == 1)
-	{
-		std::thread worker(DoWork);
-
-		if (worker.joinable())
+		for (double s = s_begin; s < s_end; s = s + 150)
 		{
-			worker.join();
-		}
+			double x, y, xd, yd, xdd, ydd, theta;
+			curve(s, x, y, xd, yd, xdd, ydd);
 
-		if (s_finished == true)
-		{
-			view.view();
-			s_finished = false;
-			view.acquire();
+			// adjust x offset between full and half track
+
+			x = x + x_offset;
+
+			// convert x and y to m
+			x = x / pixels_per_m;
+			y = y / pixels_per_m;
+			theta = atan2(yd, xd);
+			draw_box(x, y, -0.35, theta, 0, 0, 10, 12, 0.025, 0, 0, 0, 1);
+
+			//if (s == s_begin + 1500) draw_box(x, y + 19 , -0.35, theta, 0, 0, 10, 12, 0.025, 255, 255, 255, 1);
+
+			//draw_box(x, y, -0.34, theta, 0, 0, 3, 0.5, 0.025, 255, 255, 255, 1);
 		}
 	}
+	else if (steer_feature == 1) {
+		bdmk1.steer_index = 0;
+		double pixels_per_m = 21.15; // scale of track images
+		double x_offset = -1690.5;
+		double s_begin = -4.00e2;// 3.7500000e+02; // begining of curve
+		//double s_end = 2.7275000e+04; // end of curve
+		double s_end = (2.7275000e+04 - s_begin) / 2.00000;
 
+		for (double s = s_begin; s < s_end; s+=5)
+		{
+			double x, y, xd, yd, xdd, ydd, theta;
+			curve(s, x, y, xd, yd, xdd, ydd);
+
+			// adjust x offset between full and half track
+
+			x = x + x_offset;
+
+			// convert x and y to m
+			x = x / pixels_per_m;
+			y = y / pixels_per_m;
+			theta = atan2(yd, xd);
+			draw_box(x, y, -0.35, theta, 0, 0, 2, 2, 0.025, 255, 255, 255, 1);
+			//draw_box(draw[0], draw[1], -0.35, yaw, 0, 0, 2, 2, 0.025, 255, 255, 0, 1);
+			draw_box(draw[2], draw[3], 0, draw[6], 0, 0, 1, 1, 0, 0, 255, 0, 1);
+			//draw_box(draw[4], draw[5], 0, draw[7], 0, 0, 1, 1, 0.0, 255, 0, 0, 1);
+			if (steer_init == 0) {
+				bdmk1.steer_x[bdmk1.steer_index] = x;
+				bdmk1.steer_y[bdmk1.steer_index] = y;
+				bdmk1.steer_theta[bdmk1.steer_index] = theta;
+				bdmk1.steer_index += 1;
+			}
+		}
+		steer_init = 0;
+		//fout1 << "\n x: " << bdmk1.x_index; THIS CONFIRMS ARRAY IS BELOW 100! 
+		//fout1 << "\n y: " << bdmk1.y_index;
+		//fout1 << robot1.x[7] << endl;
+	}
+
+		// draw car
+		draw_car(x, y, z, yaw, pitch, roll, th_front, th_back, th_steer);
+
+		global_yaw = yaw;
+
+		if (VFF_Feature == 1)
+		{
+			std::thread worker(DoWork);
+
+			if (worker.joinable())
+			{
+				worker.join();
+			}
+
+			if (s_finished == true)
+			{
+				view.view();
+				s_finished = false;
+				view.acquire();
+			}
+		}
+	
 	
 	/*
 	view.acquire();
