@@ -1186,9 +1186,9 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 	if (time_delta < interval) return;
 	time1 = time2;
 
-	double kp_PID = 50.00;
-	double kd_PID = 0.00;
-	double ki_PID = 0.00;
+	double kp_PID = 0.40;
+	double kd_PID = 0.10;
+	double ki_PID = 0.05;
 
 	static double error = 0;
 	static double old_error = 0;
@@ -1288,25 +1288,26 @@ void BDMK1::steer_control(bool feature_state, double& u_s, double us_max, double
 	delta_distance = cross_product / curve_vector_mag;
 	
 	error = delta_distance;
-	//error_dot = (error - old_error) / time_delta;
+	error_dot = (error - old_error) / time_delta;
 	int_error = int_error + error * time_delta;
-	//phi = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
+	phi = kp_PID * error + ki_PID * int_error + kd_PID * error_dot;
 	//phi = -0.03;
 
+	/*
 	if (cross_product < 0) {
 		phi = -0.2;
 	}
 	else if (cross_product > 0) {
 		phi = 0.2;
-	}
+	}*/
 
 	old_error = error;
 
 
 	if (u_s > us_max) u_s = us_max;
 	if (u_s < -us_max) u_s = -us_max;
-	//if (phi > phi_max) phi = phi_max;
-	//if (phi < -phi_max) phi = -phi_max;
+	if (phi > phi_max) phi = phi_max;
+	if (phi < -phi_max) phi = -phi_max;
 
 }
 
