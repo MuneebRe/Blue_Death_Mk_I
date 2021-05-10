@@ -157,6 +157,7 @@ void robot::sim_step(double dt, robot robot1)
 	/// tau_b = GR * tau_m -> tau_m = tau_b / GR
 	
 	/*
+	//Early Controller Design (In simulator)
 	// Acceleration From Stand Still
 	
 	if (start_acc == true && r > 0.1 && brake_active == false)

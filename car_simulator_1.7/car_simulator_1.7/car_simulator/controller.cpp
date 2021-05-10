@@ -224,13 +224,14 @@ void calculate_control_inputs()
 
 	bdmk1.speed_PID(velocity_target, wf, robot1.Rw, u_s, us_max, t, 0.003);
 	
-	//bdmk1.traction_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+	bdmk1.traction_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
 	
-	bdmk1.acc(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
-	bdmk1.traction_PID_2(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+	//Early Controller Design
+	//bdmk1.acc(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+	//bdmk1.traction_PID_2(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+	//bdmk1.brakes(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
 
-	//bdmk1.brake_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
-	bdmk1.brakes(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+	bdmk1.brake_PID(u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
 
 	//HIL_Data();
 
