@@ -202,23 +202,23 @@ void calculate_control_inputs()
 	double velocity_target = 0;
 
 	if (t >  1) velocity_target = 20.00;
-	if (t > 100) velocity_target = 0;
+	if (t > 10) velocity_target = 0;
 	
-
+	//Muneeb's Version
 	//Sim_Step_Data();	//Can be used to make the car run how the sim_step is simulating
 	//HIL_Data();		//Can be used to make the car run how the HIL is simulating
 
 	//Set VFF_Feature to 1 / steer_feature to 0 for steering control using graphics. 
 	//Set VFF_Feature to 0 / steer_feature to 1 for steering control using linear algebra
 
-	VFF_Feature = 1; //Can be slow since Vision processing takes alot more time than dt = 0.001s
-	
 	//Muneeb's Version
+	VFF_Feature = 0; //Can be slow since Vision processing takes alot more time than dt = 0.001s
+					 //If the car's not moving (can happen with slow computer processing speed)
+					 //Then disable bdmk1.traction_PID
 	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
 
-	steer_feature = 0;
-
 	//Gurvir's Version
+	steer_feature = 1;
 	bdmk1.steer_control(steer_feature, u_s, us_max, u_phi, phi_max, t, 0.003, xc, yc, draw);
 
 	//Muneeb's Version
@@ -233,11 +233,13 @@ void calculate_control_inputs()
 	bool brake_PID_switch = 1;
 	bdmk1.brake_PID(brake_PID_switch, u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
 
+	//Alexandro's Version
 	//Early Controller Design
 	//bdmk1.acc(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
 	//bdmk1.traction_PID_2(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
 	//bdmk1.brakes(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
 
+	//Muneeb's Version
 	//input_to_buffer(u_s, 0.0, u_phi);	//Discontinued, can use car_simulator
 										//as the controller for the controller on the HIL.
 										//Makes it possible to control in Real-Time, though with a bit of lag.
@@ -267,6 +269,9 @@ void calculate_control_inputs()
 	}
 	speed_controller(u_s);
 	*/
+
+
+
 	// set inputs in the robot model
 	robot1.u[1] = u_s; // motor voltage V(t)
 	robot1.u[2] = 0.0; // disturbance torque Td(t)

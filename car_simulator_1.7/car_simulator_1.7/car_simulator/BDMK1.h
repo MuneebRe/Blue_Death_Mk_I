@@ -106,9 +106,9 @@ public:
 
 	void steer_control(bool feature_state, double& u_s, double us_max, double& phi, double phi_max, double t, double interval, double xc, double yc, double draw[8]);
 	void VFF_control(bool feature_state, double& u_s, double us_max, double& phi, double phi_max, double t, double interval);
-	void speed_PID(double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval);
-	void traction_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
-	void brake_PID(double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
+	void speed_PID(bool is_enable, double target_vf, double wf, double Rw, double& u_s, double us_max, double t, double interval);
+	void traction_PID(bool is_enable, double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
+	void brake_PID(bool is_enable, double& u_s, double us_max, double r, double vf, double wb, double wf, double velocity_target, double t, double interval);
 	void traction_PID_2(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval);
 	void acc(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval);
 	void brakes(double& u_s, double us_max, double r, double vf, double wb, double wf, double Rw, bool& brake_active, bool& start_acc, double velocity_target, double t, double interval);
