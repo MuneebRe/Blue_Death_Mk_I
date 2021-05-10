@@ -15,7 +15,6 @@ car_simulator_1.7/car_simulator_1.7/car_simulator/.vs/DirectXTKSimpleSample/v16/
 *.ilk
 *.lib
 *.recipe
-*.txt
 Serial/.vs/program/v16/.suo
 *.obj
 *.exe
