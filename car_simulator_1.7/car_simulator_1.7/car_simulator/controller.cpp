@@ -218,7 +218,7 @@ void calculate_control_inputs()
 	bdmk1.VFF_control(VFF_Feature, u_s, us_max, u_phi, phi_max, t, 0.003);
 
 	//Gurvir's Version
-	steer_feature = 1;
+	steer_feature = 0;
 	bdmk1.steer_control(steer_feature, u_s, us_max, u_phi, phi_max, t, 0.003, xc, yc, draw);
 
 	//Muneeb's Version
