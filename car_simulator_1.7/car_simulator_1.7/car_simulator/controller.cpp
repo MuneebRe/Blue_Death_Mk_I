@@ -151,6 +151,10 @@ void calculate_control_inputs()
 
 	double t = robot1.t; // simulation time
 
+	bool brake_active = false;
+	bool start_acc = true;
+	double Rw = 3.2e-2;
+
 	// max steering angle of typical car 
 	double phi_max = 35.0/180*3.14159;
 	
@@ -228,6 +232,11 @@ void calculate_control_inputs()
 	//Muneeb's Version
 	bool brake_PID_switch = 1;
 	bdmk1.brake_PID(brake_PID_switch, u_s, us_max, r, vf, wb, wf, velocity_target, t, 0.003);
+
+	//Early Controller Design
+	//bdmk1.acc(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+	//bdmk1.traction_PID_2(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
+	//bdmk1.brakes(u_s, us_max, r, vf, wb, wf, Rw, brake_active, start_acc, velocity_target, t, 0.003);
 
 	//input_to_buffer(u_s, 0.0, u_phi);	//Discontinued, can use car_simulator
 										//as the controller for the controller on the HIL.
